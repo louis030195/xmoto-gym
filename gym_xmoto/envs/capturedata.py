@@ -1,12 +1,7 @@
-import pyautogui
-import time
 from draw_ground import draw_ground
 import numpy as np
 import cv2
-import time
 import os
-from testkeypress import GetAsyncKeyState
-import time
 
 """
 i = 0
@@ -35,21 +30,7 @@ while i < width:
 
 
 
-# DRIVE -------------------------
 
-def accelerate():
-    pyautogui.keyDown('W')
-
-def liftfront():
-    pyautogui.keyDown('A')
-
-def liftback():
-    pyautogui.keyDown('D')
-
-def brake():
-    pyautogui.keyDown('S')
-
-#  -------------------------
 
 
 
@@ -173,28 +154,9 @@ def process_img(original_image):
     return processed_img,original_image, m1, m2
 
 
-def main():
-    for i in list(range(4))[::-1]:
-        print(i+1)
-        time.sleep(1)
-
-    last_time = time.time()
-    paused = False
-
-    print('STARTING!!!')
-    while(True):
-            screen = np.array(pyautogui.screenshot(region=(80,120,720,480)))
-
-            print('Frame took {} seconds'.format(time.time()-last_time))
-            last_time = time.time()
-            new_screen,original_image, m1, m2 = process_img(screen)
-            cv2.imshow('window', new_screen)
-            cv2.imshow('window2',cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
-
-
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
-                break
-
-
-main()
+def capturedata():
+    screen = np.array(pyautogui.screenshot(region=(80,120,720,480)))
+    new_screen,original_image, m1, m2 = process_img(screen)
+    return new_screen,original_image, m1, m2
+    #cv2.imshow('window', new_screen)
+    #cv2.imshow('window2',cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
