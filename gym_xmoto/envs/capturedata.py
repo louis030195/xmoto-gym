@@ -1,6 +1,22 @@
+import numpy as np
+import cv2
+import os
 from numpy import ones,vstack
 from numpy.linalg import lstsq
 import numpy as np
+import pyautogui
+import time
+
+def roi(img, vertices):
+    #blank mask:
+    mask = np.zeros_like(img)
+    # fill the mask
+    cv2.fillPoly(mask, vertices, 255)
+    # now only show the area that is the mask
+    masked = cv2.bitwise_and(img, mask)
+    return masked
+
+
 
 def draw_ground(img, lines, color=[0, 255, 255], thickness=3):
 
@@ -27,7 +43,7 @@ def draw_ground(img, lines, color=[0, 255, 255], thickness=3):
                 x_coords = (xyxy[0],xyxy[2])
                 y_coords = (xyxy[1],xyxy[3])
                 A = vstack([x_coords,ones(len(x_coords))]).T
-                m, b = lstsq(A, y_coords)[0]
+                m, b = lstsq(A, y_coords, rcond = None)[0]
 
                 # Calculating our new, and improved, xs
                 x1 = (min_y-b) / m
@@ -89,3 +105,73 @@ def draw_ground(img, lines, color=[0, 255, 255], thickness=3):
         return [l1_x1, l1_y1, l1_x2, l1_y2], [l2_x1, l2_y1, l2_x2, l2_y2], ground1_id, ground2_id
     except Exception as e:
         print(str(e))
+
+def process_img(original_image):
+    processed_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+    processed_img = cv2.Canny(processed_img, threshold1=200, threshold2=300)
+
+    vertices = np.array([[10,450],[10,250],[300,250],[480,250],[720,250],[720,450],
+                         ], np.int32)
+    processed_img = cv2.GaussianBlur(processed_img,(5,5),0)
+    processed_img = roi(processed_img, [vertices])
+
+
+    # more info: http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_imgproc/py_houghlines/py_houghlines.html
+    #                          edges       rho   theta   thresh         # min length, max gap:
+    lines = cv2.HoughLinesP(processed_img,1,np.pi/180, 80,20,15)
+    #draw_lines(processed_img,lines)
+    try:
+        l1, l2, m1, m2 = draw_ground(original_image,lines) # Return lanes and their slopes
+        cv2.line(original_image, (l1[0], l1[1]), (l1[2], l1[3]), [0,255,0], 30)
+        cv2.line(original_image, (l2[0], l2[1]), (l2[2], l2[3]), [0,255,0], 30)
+    except Exception as e:
+        print(str(e))
+        pass
+    try:
+        for coords in lines:
+            coords = coords[0]
+            try:
+                cv2.line(processed_img, (coords[0], coords[1]), (coords[2], coords[3]), [255,0,0], 3)
+
+
+            except Exception as e:
+                print(str(e))
+    except Exception as e:
+        pass
+
+    return processed_img,original_image, m1, m2
+
+
+def capturedata():
+    """
+    Capture screen data
+    Returns
+    -------
+    new_screen, original_screen, m1, m2
+        zz
+        zz
+        zz
+        zz
+
+    """
+    screen = np.array(pyautogui.screenshot(region=(80,120,720,480)))
+    new_screen,original_image, m1, m2 = process_img(screen)
+    return new_screen,original_image, m1, m2
+
+
+
+def testdata():
+    print("Starting capturing data in 5 secs ...")
+    time.sleep(5)
+
+    last_time = time.time()
+    while True:
+        s1, s2, m1, m2 = capturedata()
+        print('Frame took {} seconds'.format(time.time()-last_time))
+        last_time = time.time()
+        cv2.imshow('window', s1)
+        cv2.imshow('window2',cv2.cvtColor(s2, cv2.COLOR_BGR2RGB))
+
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
