@@ -13,34 +13,42 @@ from gym import spaces
 import gym
 import numpy as np
 import subprocess
-from capturedata import capturedata
+import time
+from gym_xmoto.envs.capturedata import capturedata
 
 
 
 class XmotoEnv(gym.Env):
 
-  def __init__(self):
+  ACTION = ["w", "a", "s", "d", " ", "enter"]
 
+
+  # DRIVE -------------------------
+  def _take_action(self, key):
+      pyautogui.keyDown(str(key))
+      pyautogui.keyUp(str(key))
+
+  #  -------------------------
+
+
+  def _get_state(self):
+      s1, s2, m1, m2 = capturedata()
+      #print(s1,s2,m1,m2)
+
+      return s2
+
+  def __init__(self):
+    SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
 
     self.viewer = None
 
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(6)
-    self.observation_space = Box(0, 255, [720, 480, 3]) # yolo ????
-
-    for a in self.action_space:
-      print("Action : " + str(a))
+    self.observation_space = spaces.Box(
+            low=0, high=255, shape=(SCREEN_HEIGHT, SCREEN_WIDTH, 3))
 
 
-
-"""
-    bashCommand = "./xmoto"
-
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-    output, error = process.communicate()
-"""
-
-    #self.reset()
+    #self.observation_space = spaces.Discrete(1)
 
 
   def step(self, action):
@@ -72,62 +80,28 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
 
+    #if isinstance(action, int):
+    self._take_action(self.ACTION[action])
+    ob = self._get_state()
+    reward = -0.01 # speed up ?
 
-    anyaction(action)
-    reward = -0.01 # TODO : If dead mean reward ...
+    dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
+    win = pyautogui.locateOnScreen('screenshots/win.png') != None
 
-    episode_over = False
+    episode_over = dead | win
+
+    if dead:
+        reward = -1.0
+
+    if win:
+        reward = 1.0
+
     # TODO : Detect when end screen appear and return as episode_over
-    return self.obs, reward, episode_over, {}
+    return ob, reward, episode_over, {dead}
 
 
   def reset(self):
-    return anyaction('\n')
+    return self._take_action(self.ACTION[5])
 
-
-
-    # DRIVE -------------------------
-
-    def accelerate():
-        pyautogui.keyDown('W')
-
-    def liftfront():
-        pyautogui.keyDown('A')
-
-    def liftback():
-        pyautogui.keyDown('D')
-
-    def brake():
-        pyautogui.keyDown('S')
-
-    def anyaction(key):
-        pyautogui.keyUp(key)
-        pyautogui.keyUp(key)
-
-    #  -------------------------
-
-
-  def get_keys_to_action(self):
-    KEYWORD_TO_KEY = {
-        'ADVANCE':      ord('w'),
-        'BRAKE':    ord('s'),
-        'LEFT':    ord('a'),
-        'RIGHT':   ord('d'),
-        'SPACE':    ord(' '),
-        'RESET':   ord('\n'),
-
-    }
-
-    keys_to_action = {}
-
-    for action_id, action_meaning in enumerate(self.get_action_meanings()):
-        keys = []
-        for keyword, key in KEYWORD_TO_KEY.items():
-            if keyword in action_meaning:
-                keys.append(key)
-        keys = tuple(sorted(keys))
-
-        assert keys not in keys_to_action
-        keys_to_action[keys] = action_id
-
-    return keys_to_action
+  def render(self):
+      pass
