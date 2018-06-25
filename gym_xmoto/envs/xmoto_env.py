@@ -41,7 +41,7 @@ class XmotoEnv(gym.Env):
     SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
 
     self.viewer = None
-
+    self.state = None
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(6)
     self.observation_space = spaces.Box(
