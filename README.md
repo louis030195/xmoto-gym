@@ -9,6 +9,8 @@ The idea would be to use reinforcement learning with OpenAi's gym instead of sup
  - A = LIFT FRONT WHEEL
  - S = BRAKE
  - D = LIFT BACK WHEEL
+ - SPACE = change direction
+ - ENTER = reset
 
   # States
   - Dead = Detect when dead screen ?
@@ -38,6 +40,7 @@ The idea would be to use reinforcement learning with OpenAi's gym instead of sup
 
 
 # TODO
- - Get velocity, position ?
+ - Get velocity, position ? => observation
+ - Get angle between ground and bike to know if the wheels are lifted or not => observation
+ - Get direction
  - find a way to positive reward
- - implement DQN
