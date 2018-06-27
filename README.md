@@ -4,6 +4,8 @@ to draw the ground lines.
 
 The idea would be to use reinforcement learning with OpenAi's gym instead of supervised learning so we won't have to play and collect data manually.
 
+https://github.com/openai/gym
+
 # Actions
  - W = ADVANCE
  - A = LIFT FRONT WHEEL
@@ -13,12 +15,11 @@ The idea would be to use reinforcement learning with OpenAi's gym instead of sup
  - ENTER = reset
 
   # States
-  - Dead = Detect when dead screen ?
+  - Dead = Detect when dead screen
   - Win = Detect win screen
 
   # Observations
    - Get the map lines slope
-   - Motorbike line slope ?
 
    <img src="screenshots/maplines.png" width="300">
 
@@ -43,4 +44,5 @@ The idea would be to use reinforcement learning with OpenAi's gym instead of sup
  - Get velocity, position ? => observation
  - Get angle between ground and bike to know if the wheels are lifted or not => observation
  - Get direction
- - find a way to positive reward
+ - find a way to positive reward (reward when going toward apples / objective, reward when moving ..)
+ - Implement rendering
