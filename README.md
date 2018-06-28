@@ -1,4 +1,11 @@
 # Xmoto AI
+
+
+
+WARNING DIRTY CODE / MESS
+
+
+
 Using part of [sentdex's self driving car in gta](https://pythonprogramming.net/game-frames-open-cv-python-plays-gta-v) code
 to draw the ground lines.
 
