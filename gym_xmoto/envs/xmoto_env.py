@@ -14,7 +14,7 @@ import gym
 import numpy as np
 import subprocess
 import time
-from gym_xmoto.envs.capturedata import capturedata
+from gym_xmoto.envs.capturedata2 import capturedata
 
 
 
@@ -32,10 +32,8 @@ class XmotoEnv(gym.Env):
 
 
   def _get_state(self):
-      s1, s2, m1, m2 = capturedata()
-      #print(s1,s2,m1,m2)
-
-      return s2
+      distance, screen  = capturedata((80,550,120,100)) # distance to apple
+      return distance
 
   def __init__(self):
     SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
@@ -44,11 +42,10 @@ class XmotoEnv(gym.Env):
     self.state = None
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(6)
-    self.observation_space = spaces.Box(
-            low=0, high=255, shape=(SCREEN_HEIGHT, SCREEN_WIDTH, 3))
+    self.observation_space = spaces.Discrete(1)
+    self._prev_obs = 0
 
 
-    #self.observation_space = spaces.Discrete(1)
 
 
   def step(self, action):
@@ -79,11 +76,15 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-
+    reward = -0.01 # speed up ?
     #if isinstance(action, int):
     self._take_action(self.ACTION[action])
-    ob = self._get_state()
-    reward = -0.01 # speed up ?
+    self.state = self._get_state()
+    ob = self.state
+    if(ob < self._prev_obs):
+        reward += 0.1
+    self._prev_obs = ob
+
 
     dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
     win = pyautogui.locateOnScreen('screenshots/win.png') != None
@@ -91,10 +92,10 @@ class XmotoEnv(gym.Env):
     episode_over = dead | win
 
     if dead:
-        reward = -1.0
+        reward += -1.0
 
     if win:
-        reward = 1.0
+        reward += 1.0
 
     # TODO : Detect when end screen appear and return as episode_over
     return ob, reward, episode_over, {dead}
