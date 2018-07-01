@@ -5,10 +5,6 @@
 WARNING DIRTY CODE / MESS
 
 
-
-Using part of [sentdex's self driving car in gta](https://pythonprogramming.net/game-frames-open-cv-python-plays-gta-v) code
-to draw the ground lines.
-
 The idea would be to use reinforcement learning with OpenAi's gym instead of supervised learning so we won't have to play and collect data manually.
 
 https://github.com/openai/gym

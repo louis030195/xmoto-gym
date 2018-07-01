@@ -107,6 +107,9 @@ def draw_ground(img, lines, color=[0, 255, 255], thickness=3):
     except Exception as e:
         print(str(e))
 
+
+# part of
+# ttps://pythonprogramming.net/game-frames-open-cv-python-plays-gta-v code
 def process_img(original_image):
     processed_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     processed_img = cv2.Canny(processed_img, threshold1=200, threshold2=300)
@@ -144,7 +147,7 @@ def process_img(original_image):
     return processed_img,original_image, m1, m2
 """
 
-def capturedata(zone):
+def capturedata(zone, debug=False):
     """
     Capture screen data
     Returns
@@ -164,8 +167,6 @@ def capturedata(zone):
     bikeX, bikeY = 0, 0
     dist = 0
 
-
-
     for y in range(119):
         for x in range(99):
             [r, g, b] = screen[x, y]
@@ -177,12 +178,18 @@ def capturedata(zone):
                 found2 = True
             if found1 and found2:
                 break
-    try:#sometimes math error ??
-        dist = sqrt((appleX - bikeX)^2 + (appleY - bikeY)^2)
-    except ValueError:
-        print ("Oops!  That was no valid number.  Try again...")
+    #try:#sometimes math error ??
+    if appleX != 0 and appleY != 0:
+        z = (bikeX - appleX)^2 + (bikeY - appleY)^2
+        dist = sqrt(abs(z)) # Why need abs ?? power isnt supposed to always be pos ?
+        if debug:
+            print("distance to apple :" + str(dist))
+            cv2.line(screen,(appleX,appleY),(bikeX,bikeY),(255,0,0),1)
+    #except ValueError:
+    #    print ("Oops!  That was no valid number.  Try again..." + str(z))
 # NEED TO FIX THAT DETECT HIS OWN POSITION
-    print("distance to apple :" + str(dist))
+    if debug:
+        cv2.imshow('window', screen)
 
     return dist, screen
 
@@ -194,13 +201,13 @@ def testdata():
     last_time = time.time()
     while True:
         #s1, s2 = capturedata((200,200,200,200))
-        s3, s4 = capturedata((80,550,120,100)) # Map size
+        s3, s4 = capturedata((80,550,120,100),True) # Map size
         s4 = cv2.cvtColor(s4, cv2.COLOR_BGR2RGB)
         print('Frame took {} seconds'.format(time.time()-last_time))
         last_time = time.time()
         #cv2.imshow('window', s1)
 
-        cv2.imshow('window3', s4)
+        #cv2.imshow('window3', s4)
 
         #print("distance to apple :" + str(dist))
 

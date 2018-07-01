@@ -25,8 +25,10 @@ class XmotoEnv(gym.Env):
 
   # DRIVE -------------------------
   def _take_action(self, key):
+      print("key : " + str(key))
       pyautogui.keyDown(str(key))
       pyautogui.keyUp(str(key))
+      return 0.1 if str(key) == "w" else 0
 
   #  -------------------------
 
@@ -78,7 +80,7 @@ class XmotoEnv(gym.Env):
     """
     reward = -0.01 # speed up ?
     #if isinstance(action, int):
-    self._take_action(self.ACTION[action])
+    reward += self._take_action(self.ACTION[action])
     self.state = self._get_state()
     ob = self.state
     if(ob < self._prev_obs):
