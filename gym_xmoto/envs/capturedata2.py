@@ -191,7 +191,7 @@ def capturedata(zone, debug=False):
     if debug:
         cv2.imshow('window', screen)
 
-    return dist, screen
+    return screen, dist
 
 
 def testdata():

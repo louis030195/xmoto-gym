@@ -27,25 +27,27 @@ class XmotoEnv(gym.Env):
   def _take_action(self, key):
       print("key : " + str(key))
       pyautogui.keyDown(str(key))
+      if str(key) == "w": # find better ?? : store prev action and act until next
+          time.sleep(1)
       pyautogui.keyUp(str(key))
-      return 0.1 if str(key) == "w" else 0
+      return 0#.01 if str(key) == "w" else 0
 
   #  -------------------------
 
 
   def _get_state(self):
-      distance, screen  = capturedata((80,550,120,100)) # distance to apple
-      return distance
+      screen, distance  = capturedata((80,550,120,100)) # distance to apple
+      return screen, distance
 
   def __init__(self):
-    SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
+    #SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
 
     self.viewer = None
     self.state = None
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(6)
-    self.observation_space = spaces.Discrete(1)
-    self._prev_obs = 0
+    self.observation_space = spaces.Box(0, 255, [120, 100, 3])
+    self._prev_dist_apple = 0
 
 
 
@@ -81,11 +83,12 @@ class XmotoEnv(gym.Env):
     reward = -0.01 # speed up ?
     #if isinstance(action, int):
     reward += self._take_action(self.ACTION[action])
-    self.state = self._get_state()
-    ob = self.state
-    if(ob < self._prev_obs):
+
+    ob, dist_apple = self._get_state()
+    #print("DIST APPLE : "+str(dist_apple))
+    if(dist_apple < self._prev_dist_apple):
         reward += 0.1
-    self._prev_obs = ob
+    self._prev_dist_apple = dist_apple
 
 
     dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
