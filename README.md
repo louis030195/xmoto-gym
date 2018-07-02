@@ -5,7 +5,7 @@
 WARNING DIRTY CODE / MESS
 
 
-The idea would be to use reinforcement learning with OpenAi's gym instead of supervised learning so we won't have to play and collect data manually.
+Reinforcement learning with OpenAi's gym on Xmoto game
 
 https://github.com/openai/gym
 
