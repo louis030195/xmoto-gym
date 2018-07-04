@@ -9,8 +9,6 @@ https://github.com/openai/gym
 [Video](https://www.youtube.com/watch?v=ks1ci2bMIiY&feature=youtu.be)
 
 
-
-
 # Actions
  - W = ADVANCE
  - A = LIFT FRONT WHEEL
