@@ -1,13 +1,15 @@
 # Xmoto AI
 
-
-
-WARNING DIRTY CODE / MESS
-
-
-The idea would be to use reinforcement learning with OpenAi's gym instead of supervised learning so we won't have to play and collect data manually.
+OpenAi Gym with Xmoto !
 
 https://github.com/openai/gym
+
+
+# Version 0
+[Video](https://www.youtube.com/watch?v=ks1ci2bMIiY&feature=youtu.be)
+
+
+
 
 # Actions
  - W = ADVANCE
@@ -22,9 +24,22 @@ https://github.com/openai/gym
   - Win = Detect win screen
 
   # Observations
-   - Get the map lines slope
+  I use the minimap pixels, why not ?
+  Atm only 1 observation : distance from bike to objective(apple)
+  then :
+  - Direction : the longest distance between bike and minimap edge is the direction.
+  - How many objectives left (top left screen)
 
-   <img src="screenshots/maplines.png" width="300">
+  # Rewards
+  - Positive when bike is getting closer to objectives(apples)
+  - Negative every frame to speed up
+  - Positive when winning
+  - Negative when losing
+  TODO :
+   - Positive when getting apple
+   ...
+
+
 
   # After updating pip package
   python3 setup.py sdist bdist_wheel
@@ -40,12 +55,3 @@ https://github.com/openai/gym
   env = gym.make('Xmoto-v0')
 
   ```
-
-
-
-# TODO
- - Get velocity, position ? => observation
- - Get angle between ground and bike to know if the wheels are lifted or not => observation
- - Get direction
- - find a way to positive reward (reward when going toward apples / objective, reward when moving ..)
- - Implement rendering

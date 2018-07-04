@@ -46,7 +46,8 @@ class XmotoEnv(gym.Env):
     self.state = None
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(6)
-    self.observation_space = spaces.Box(0, 255, [120, 100, 3])
+    #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
+    self.observation_space = spaces.Discrete(1)
     self._prev_dist_apple = 0
 
 
@@ -82,32 +83,33 @@ class XmotoEnv(gym.Env):
     """
     reward = -0.01 # speed up ?
     #if isinstance(action, int):
-    reward += self._take_action(self.ACTION[action])
+    self._take_action(self.ACTION[action])
 
-    ob, dist_apple = self._get_state()
+    self.state, dist_apple = self._get_state()
     #print("DIST APPLE : "+str(dist_apple))
     if(dist_apple < self._prev_dist_apple):
         reward += 0.1
     self._prev_dist_apple = dist_apple
-
 
     dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
     win = pyautogui.locateOnScreen('screenshots/win.png') != None
 
     episode_over = dead | win
 
+    #print("ep over : "+str(episode_over))
     if dead:
         reward += -1.0
-
     if win:
-        reward += 1.0
+        reward += 1.0 # TODO : hit next level key ?
+    if episode_over:
+        self._take_action(self.ACTION[5])
 
-    # TODO : Detect when end screen appear and return as episode_over
-    return ob, reward, episode_over, {dead}
+    return np.array(dist_apple), reward, episode_over, {dead}
 
 
   def reset(self):
-    return self._take_action(self.ACTION[5])
+    self.state = np.random.rand(1,)
+    return np.array(self.state)
 
   def render(self):
       pass
