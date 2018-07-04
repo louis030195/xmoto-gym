@@ -17,10 +17,6 @@ https://github.com/openai/gym
  - SPACE = change direction
  - ENTER = reset
 
-  # States
-  - Dead = Detect when dead screen
-  - Win = Detect win screen
-
   # Observations
   I use the minimap pixels, why not ?
   Atm only 1 observation : distance from bike to objective(apple)
