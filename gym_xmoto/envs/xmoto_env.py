@@ -21,11 +21,10 @@ from gym_xmoto.envs.capturedata2 import capturedata
 class XmotoEnv(gym.Env):
 
   ACTION = ["w", "a", "s", "d", " ", "enter"]
-
+  SCREEN_HEIGHT, SCREEN_WIDTH  = 720, 480
 
   # DRIVE -------------------------
   def _take_action(self, key):
-      print("key : " + str(key))
       pyautogui.keyDown(str(key))
       if str(key) == "w": # find better ?? : store prev action and act until next
           time.sleep(1)
@@ -36,19 +35,27 @@ class XmotoEnv(gym.Env):
 
 
   def _get_state(self):
-      screen, distance  = capturedata((80,550,120,100)) # distance to apple
-      return screen, distance
+      #screen, distance  = capturedata((80,550,120,100), onlyscreen=False) # minimap
+      #return screen, distance
+      return capturedata((80,120,self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
+
+
+  def _action_tostring(self, action):
+      return str(self.ACTION[action])
 
   def __init__(self):
-    #SCREEN_WIDTH, SCREEN_HEIGHT = 480, 720
+
 
     self.viewer = None
     self.state = None
     # WASD SPACE ENTER
-    self.action_space = spaces.Discrete(6)
+    self.action_space = spaces.Discrete(len(self.ACTION))
     #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
-    self.observation_space = spaces.Discrete(1)
-    self._prev_dist_apple = 0
+    self.observation_space = spaces.Box(0, 255,
+    [int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 3])
+    #self.observation_space = spaces.Box(low=0, high=255, shape=(120, 100, 3), dtype=np.uint8)
+    #self.observation_space = spaces.Discrete(1)
+    #self._prev_dist_apple = 0
 
 
 
@@ -81,15 +88,17 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-    reward = -0.01 # speed up ?
+    reward = -0.05 # speed up ?
     #if isinstance(action, int):
     self._take_action(self.ACTION[action])
-
-    self.state, dist_apple = self._get_state()
-    #print("DIST APPLE : "+str(dist_apple))
-    if(dist_apple < self._prev_dist_apple):
+    if self._action_tostring(action) == "w":
         reward += 0.1
-    self._prev_dist_apple = dist_apple
+    #self.state, dist_apple = self._get_state()
+    self.state = self._get_state()
+    #print("DIST APPLE : "+str(dist_apple))
+    #if(dist_apple < self._prev_dist_apple):
+    #    reward += 0.1
+    #self._prev_dist_apple = dist_apple
 
     dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
     win = pyautogui.locateOnScreen('screenshots/win.png') != None
@@ -98,18 +107,21 @@ class XmotoEnv(gym.Env):
 
     #print("ep over : "+str(episode_over))
     if dead:
-        reward += -1.0
+        reward += -10.0
     if win:
-        reward += 1.0 # TODO : hit next level key ?
-    if episode_over:
-        self._take_action(self.ACTION[5])
+        reward += 10.0 # TODO : hit next level key ?
 
-    return np.array(dist_apple), reward, episode_over, {dead}
+
+    return self.state, reward, episode_over, {dead}
 
 
   def reset(self):
-    self.state = np.random.rand(1,)
-    return np.array(self.state)
+    self._take_action(self.ACTION[5])
+    #self.state = np.random.rand(1,)
+    #return np.array(self.state)
+    #self.state, dist_apple = self._get_state()
+    #return self.state
+    return self._get_state()
 
   def render(self):
       pass

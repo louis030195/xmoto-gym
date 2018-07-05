@@ -147,7 +147,7 @@ def process_img(original_image):
     return processed_img,original_image, m1, m2
 """
 
-def capturedata(zone, debug=False):
+def capturedata(zone, debug=False, onlyscreen=True): #Param to get only screen
     """
     Capture screen data
     Returns
@@ -162,36 +162,41 @@ def capturedata(zone, debug=False):
     screen = np.array(pyautogui.screenshot(region=zone))
     screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
     #new_screen,original_image = process_img(screen)
-    found1, found2 = False, False
-    appleX, appleY = 0, 0
-    bikeX, bikeY = 0, 0
-    dist = 0
 
-    for y in range(119):
-        for x in range(99):
-            [r, g, b] = screen[x, y]
-            if (r == 0 and g == 0 and b == 255) and not found1:
-                appleX, appleY = x, y
-                found1 = True
-            if (r == 104 and g == 238 and b == 255) and not found2:
-                bikeX, bikeY = x, y
-                found2 = True
-            if found1 and found2:
-                break
-    #try:#sometimes math error ??
-    if appleX != 0 and appleY != 0:
-        z = (bikeX - appleX)^2 + (bikeY - appleY)^2
-        dist = sqrt(abs(z)) # Why need abs ?? power isnt supposed to always be pos ?
+    if not onlyscreen:
+
+        found1, found2 = False, False
+        appleX, appleY = 0, 0
+        bikeX, bikeY = 0, 0
+        dist = 0
+
+        for y in range(119):
+            for x in range(99):
+                [r, g, b] = screen[x, y]
+                if (r == 0 and g == 0 and b == 255) and not found1:
+                    appleX, appleY = x, y
+                    found1 = True
+                if (r == 104 and g == 238 and b == 255) and not found2:
+                    bikeX, bikeY = x, y
+                    found2 = True
+                if found1 and found2:
+                    break
+        #try:#sometimes math error ??
+        if appleX != 0 and appleY != 0:
+            z = (bikeX - appleX)^2 + (bikeY - appleY)^2
+            dist = sqrt(abs(z)) # Why need abs ?? power isnt supposed to always be pos ?
+            if debug:
+                print("distance to apple :" + str(dist))
+                cv2.line(screen,(appleX,appleY),(bikeX,bikeY),(255,0,0),1)
+        #except ValueError:
+        #    print ("Oops!  That was no valid number.  Try again..." + str(z))
+    # NEED TO FIX THAT DETECT HIS OWN POSITION
         if debug:
-            print("distance to apple :" + str(dist))
-            cv2.line(screen,(appleX,appleY),(bikeX,bikeY),(255,0,0),1)
-    #except ValueError:
-    #    print ("Oops!  That was no valid number.  Try again..." + str(z))
-# NEED TO FIX THAT DETECT HIS OWN POSITION
-    if debug:
-        cv2.imshow('window', screen)
+            cv2.imshow('window', screen)
 
-    return screen, dist
+        return screen, dist
+    else:
+        return cv2.resize(screen, dsize=(int(zone[2] / 4), int(zone[3] / 4)))
 
 
 def testdata():
