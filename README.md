@@ -18,20 +18,13 @@ https://github.com/openai/gym
  - ENTER = reset
 
   # Observations
-  I use the minimap pixels, why not ?
-  Atm only 1 observation : distance from bike to objective(apple)
-  then :
-  - Direction : the longest distance between bike and minimap edge is the direction.
-  - How many objectives left (top left screen)
+  - Screen pixels (720x480x3) 
 
   # Rewards
-  - Positive when bike is getting closer to objectives(apples)
+  - Positive advancing
   - Negative every frame to speed up
   - Positive when winning
   - Negative when losing
-  TODO :
-   - Positive when getting apple
-   ...
 
 
 
