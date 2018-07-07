@@ -62,9 +62,9 @@ batch_size = 64
 
 with tf.variable_scope("train"):
     X_state = tf.placeholder(tf.float32,
-    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 3])
+    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 4])
     X_next_state = tf.placeholder(tf.float32,
-    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 3])
+    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 4])
     X_action = tf.placeholder(tf.int32, shape=[None])
     X_done = tf.placeholder(tf.float32, shape=[None])
     X_rewards = tf.placeholder(tf.float32, shape=[None])
@@ -124,6 +124,9 @@ mean_max_q = 0.0
 returnn = 0.0
 returns = []
 steps = []
+
+total_actions = [0] * 6 # To log number of times actions have been taken
+
 path = os.path.join(args.jobid, "model")
 with tf.Session() as sess:
     if os.path.isfile(path + ".index"):
@@ -151,6 +154,12 @@ with tf.Session() as sess:
         # Online DQN plays
         next_state, reward, done, info = env.step(action)
         returnn += reward
+
+        total_actions[action]+=1
+        print("              w a s d   enter")
+        print("Total actions [%s]" % ", ".join(map(str, total_actions)))
+        print("Rewarded " + str(reward))
+        print("Total " + str(returnn))
 
         # Let's memorize what happened
         replay_memory.append((state, action, reward, next_state, done))

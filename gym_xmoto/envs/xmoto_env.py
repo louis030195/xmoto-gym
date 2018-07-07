@@ -22,6 +22,7 @@ class XmotoEnv(gym.Env):
 
   ACTION = ["w", "a", "s", "d", " ", "enter"]
   SCREEN_HEIGHT, SCREEN_WIDTH  = 720, 480
+  TOTAL_WINS = 0
 
   # DRIVE -------------------------
   def _take_action(self, key):
@@ -52,7 +53,7 @@ class XmotoEnv(gym.Env):
     self.action_space = spaces.Discrete(len(self.ACTION))
     #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
     self.observation_space = spaces.Box(0, 255,
-    [int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 3])
+    [int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 4])
     #self.observation_space = spaces.Box(low=0, high=255, shape=(120, 100, 3), dtype=np.uint8)
     #self.observation_space = spaces.Discrete(1)
     #self._prev_dist_apple = 0
@@ -88,11 +89,11 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-    reward = -0.05 # speed up ?
+    reward = -0.001 # speed up ?
     #if isinstance(action, int):
     self._take_action(self.ACTION[action])
     if self._action_tostring(action) == "w":
-        reward += 0.1
+        reward += 0.5
     #self.state, dist_apple = self._get_state()
     self.state = self._get_state()
     #print("DIST APPLE : "+str(dist_apple))
@@ -107,9 +108,11 @@ class XmotoEnv(gym.Env):
 
     #print("ep over : "+str(episode_over))
     if dead:
-        reward += -10.0
+        reward += -3.0
     if win:
-        reward += 10.0 # TODO : hit next level key ?
+        reward += 3.0 # TODO : hit next level key ?
+        self.TOTAL_WINS += 1
+        print("Total wins " + str(self.TOTAL_WINS))
 
 
     return self.state, reward, episode_over, {dead}

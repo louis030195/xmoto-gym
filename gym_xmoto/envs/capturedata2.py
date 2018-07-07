@@ -6,6 +6,9 @@ from numpy.linalg import lstsq
 import numpy as np
 import pyautogui
 import time
+import mss
+import mss.tools
+import math
 from math import sqrt
 
 def roi(img, vertices):
@@ -147,95 +150,41 @@ def process_img(original_image):
     return processed_img,original_image, m1, m2
 """
 
-def capturedata(zone, debug=False, onlyscreen=True): #Param to get only screen
+def capturedata(zone, debug=False): #Param to get only screen
     """
     Capture screen data
     Returns
     -------
-    new_screen, original_screen, m1, m2
-        zz
-        zz
-        zz
-        zz
+    new_screen, original_screen
 
     """
-    screen = np.array(pyautogui.screenshot(region=zone))
-    screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
+    with mss.mss() as sct:
+        # Grab the data
+        region = {'top': zone[0], 'left': zone[1], 'width': zone[2], 'height': zone[3]}
+        screen = np.array(sct.grab(region))
+    #screen = np.array(pyautogui.screenshot(region=zone))
+    #screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
     #new_screen,original_image = process_img(screen)
+    #print(screen.shape)
+    if debug:
+        cv2.imshow('window', screen)
 
-    if not onlyscreen:
-
-        found1, found2 = False, False
-        appleX, appleY = 0, 0
-        bikeX, bikeY = 0, 0
-        dist = 0
-
-        for y in range(119):
-            for x in range(99):
-                [r, g, b] = screen[x, y]
-                if (r == 0 and g == 0 and b == 255) and not found1:
-                    appleX, appleY = x, y
-                    found1 = True
-                if (r == 104 and g == 238 and b == 255) and not found2:
-                    bikeX, bikeY = x, y
-                    found2 = True
-                if found1 and found2:
-                    break
-        #try:#sometimes math error ??
-        if appleX != 0 and appleY != 0:
-            z = (bikeX - appleX)^2 + (bikeY - appleY)^2
-            dist = sqrt(abs(z)) # Why need abs ?? power isnt supposed to always be pos ?
-            if debug:
-                print("distance to apple :" + str(dist))
-                cv2.line(screen,(appleX,appleY),(bikeX,bikeY),(255,0,0),1)
-        #except ValueError:
-        #    print ("Oops!  That was no valid number.  Try again..." + str(z))
-    # NEED TO FIX THAT DETECT HIS OWN POSITION
-        if debug:
-            cv2.imshow('window', screen)
-
-        return screen, dist
-    else:
-        return cv2.resize(screen, dsize=(int(zone[2] / 4), int(zone[3] / 4)))
+    return cv2.resize(screen, dsize=(int(zone[2] / 4), int(zone[3] / 4)))
 
 
 def testdata():
-    print("Starting capturing data in 5 secs ...")
-    time.sleep(5)
+    fps = 0
+    print("Starting capturing data in 3 secs ...")
+    time.sleep(3)
 
     last_time = time.time()
     while True:
-        #s1, s2 = capturedata((200,200,200,200))
-        s3, s4 = capturedata((80,550,120,100),True) # Map size
-        s4 = cv2.cvtColor(s4, cv2.COLOR_BGR2RGB)
-        print('Frame took {} seconds'.format(time.time()-last_time))
+        screen = capturedata((80, 120, 720, 480), debug=True) # Map size
+        #s4 = cv2.cvtColor(s4, cv2.COLOR_BGR2RGB)
+        #print('Frame took {} seconds'.format(time.time()-last_time))
         last_time = time.time()
-        #cv2.imshow('window', s1)
 
-        #cv2.imshow('window3', s4)
 
-        #print("distance to apple :" + str(dist))
-
-        """
-        for index, color in enumerate(s4):
-            print(color)
-
-        for index, color in enumerate(s4[3]):
-            if ((color == [255,0,0]).any() and not found1):
-                print(index)
-                apple = index
-                found1 = True
-            if ((color == [255,238,104]).any() and not found2):
-                print(index)
-                found2 = True
-                bike = index
-            if found1 and found2:
-                break
-
-        print("distance to apple :" + str(apple - bike))
-"""
-        #cv2.circle(s4,(50,50),50,(255,0,0),-1)
-        #cv2.imshow('window2',cv2.cvtColor(s2, cv2.COLOR_BGR2RGB))
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
