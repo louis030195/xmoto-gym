@@ -55,7 +55,8 @@ def q_network(net, name, reuse=False):
     return net, trainable_vars
 
 # Now for the training operations
-learning_rate = 1e-4
+#learning_rate = 1e-4
+learning_rate = 1e-1
 training_start = 100  # start training after 10,000 game steps
 discount_rate = 0.99
 batch_size = 64
@@ -156,10 +157,10 @@ with tf.Session() as sess:
         returnn += reward
 
         total_actions[action]+=1
-        print("              w a s d   enter")
+        print("\n\n\n         w  a  s  d \" \" ent")
         print("Total actions [%s]" % ", ".join(map(str, total_actions)))
         print("Rewarded " + str(reward))
-        print("Total " + str(returnn))
+        print("Total " + str(returnn) + "\n\n\n")
 
         # Let's memorize what happened
         replay_memory.append((state, action, reward, next_state, done))
