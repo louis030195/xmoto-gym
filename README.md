@@ -28,11 +28,18 @@ https://github.com/openai/gym
 
 
 
-  # After updating pip package
-  python3 setup.py sdist bdist_wheel
-  then pip install -e .
+  # Installation
+  
+  ```
+  sudo apt-get install scrot 
+  virtualenv env --python=python3
+  . env/bin/activate
+  pip install -e .
+  ```
 
   # Usage
+
+  python -m dqn2
 
   ```
 

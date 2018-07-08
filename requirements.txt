@@ -4,3 +4,7 @@ tensorflow
 opencv-python
 pyautogui
 gym
+python3_xlib
+matplotlib
+seaborn
+mss
