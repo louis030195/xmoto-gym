@@ -10,12 +10,12 @@ parser = argparse.ArgumentParser(
 # Important hparams
 #parser.add_argument("-g", "--game", type=str, default="Pong")
 parser.add_argument("-n", "--number-steps", type=int, default=1000000, help="total number of training steps")
-parser.add_argument("-e", "--explore-steps", type=int, default=100000, help="total number of explorartion steps")
+parser.add_argument("-e", "--explore-steps", type=int, default=100, help="total number of explorartion steps")
 parser.add_argument("-c", "--copy-steps", type=int, default=4096, help="number of training steps between copies of online DQN to target DQN")
 parser.add_argument("-l", "--learn-freq", type=int, default=4, help="number of game steps between each training step")
 
 # Irrelevant hparams
-parser.add_argument("-s", "--save-steps", type=int, default=10000, help="number of training steps between saving checkpoints")
+parser.add_argument("-s", "--save-steps", type=int, default=100, help="number of training steps between saving checkpoints")
 parser.add_argument("-r", "--render", action="store_true", default=False, help="render the game during training or testing")
 parser.add_argument("-t", "--test", action="store_true", default=False, help="test (no learning and minimal epsilon)")
 parser.add_argument("-v", "--verbosity", action="count", default=1, help="increase output verbosity")

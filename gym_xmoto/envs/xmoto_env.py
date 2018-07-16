@@ -26,10 +26,14 @@ class XmotoEnv(gym.Env):
 
   # DRIVE -------------------------
   def _take_action(self, key):
+      if self.prevw == 1 :
+          pyautogui.keyUp("w")
       pyautogui.keyDown(str(key))
-      if str(key) == "w": # find better ?? : store prev action and act until next
-          time.sleep(1)
-      pyautogui.keyUp(str(key))
+      if str(key) == "w":
+          self.prevw = 1
+      else :
+        pyautogui.keyUp(str(key))
+        self.prevw = 0
       return 0#.01 if str(key) == "w" else 0
 
   #  -------------------------
@@ -48,6 +52,7 @@ class XmotoEnv(gym.Env):
 
     self.viewer = None
     self.state = None
+    self.prevw = 1
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
     #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
@@ -92,7 +97,7 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-    reward = -0.001 # speed up ?
+    reward = -0.01 # speed up ?
     #if isinstance(action, int):
     self._take_action(self.ACTION[action])
     if self._action_tostring(action) == "w":
@@ -104,8 +109,8 @@ class XmotoEnv(gym.Env):
     #    reward += 0.1
     #self._prev_dist_apple = dist_apple
 
-    dead = pyautogui.locateOnScreen('screenshots/dead.png') != None
-    win = pyautogui.locateOnScreen('screenshots/win.png') != None
+    dead = pyautogui.locateOnScreen('screenshots/dead.png', grayscale=True) != None
+    win = pyautogui.locateOnScreen('screenshots/win.png', grayscale=True) != None
 
     episode_over = dead | win
 
