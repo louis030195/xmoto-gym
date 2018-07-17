@@ -34,11 +34,17 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 sns.set()
 
-
+import keylogger
 
 env = gym.make("Xmoto-v0")
+print("Start teaching agent in 5 seconds ...")
+time.sleep(5)
+print("GO !")
+
+keylogger.start_keylogger()
 
 def q_network(net, name, reuse=False):
     with tf.variable_scope(name, reuse=reuse) as scope:
@@ -56,7 +62,7 @@ def q_network(net, name, reuse=False):
 
 # Now for the training operations
 #learning_rate = 1e-4
-learning_rate = 1e-1
+learning_rate = 1e-4
 training_start = 100  # start training after 10,000 game steps
 discount_rate = 0.99
 batch_size = 64
@@ -153,14 +159,21 @@ with tf.Session() as sess:
         action = epsilon_greedy(q_values, step)
 
         # Online DQN plays
+        if step < 20:
+            action = keylogger.GetAsyncKeyState(env.ACTION)
+        else:
+            keylogger.stop_keylogger()
         next_state, reward, done, info = env.step(action)
         returnn += reward
 
+
+
+
         total_actions[action]+=1
-        print("\n\n\n         w  a  s  d \" \" ent")
+        print("\nw  a  s  d \" \" ent")
         print("Total actions [%s]" % ", ".join(map(str, total_actions)))
         print("Rewarded " + str(reward))
-        print("Total " + str(returnn) + "\n\n\n")
+        print("Total " + str(returnn) + "\n")
 
         # Let's memorize what happened
         replay_memory.append((state, action, reward, next_state, done))
