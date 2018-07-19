@@ -44,7 +44,6 @@ print("Start teaching agent in 5 seconds ...")
 time.sleep(5)
 print("GO !")
 
-keylogger.start_keylogger()
 
 def q_network(net, name, reuse=False):
     with tf.variable_scope(name, reuse=reuse) as scope:
@@ -161,8 +160,7 @@ with tf.Session() as sess:
         # Online DQN plays
         if step < 20:
             action = keylogger.GetAsyncKeyState(env.ACTION)
-        else:
-            keylogger.stop_keylogger()
+
         next_state, reward, done, info = env.step(action)
         returnn += reward
 

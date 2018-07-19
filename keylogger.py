@@ -24,31 +24,24 @@ except ImportError:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-char = None
-def start_keylogger():
-    _thread.start_new_thread(keypress, ())
-
-def stop_keylogger():
-    _thread.exit()
-
 def keypress():
     global char
     char = getch()
 
 def GetAsyncKeyState(charPressed):
     global char
-    if char is not None:
-        print("CHAR : " + char)
-        try:
-            print("Key pressed is " + char)
-        except UnicodeDecodeError:
-            print("character can not be decoded, sorry!")
-            char = None
-        if char == charPressed:
-            return charPressed.index(char)
-    else:
-        return 5
-"""
+    char = None
+    _thread.start_new_thread(keypress, ())
+    print("zzzzz " + str(char))
+    while True:
+        if char is not None:
+            try:
+                print("Key pressed is " + char)
+            except UnicodeDecodeError:
+                print("character can not be decoded, sorry!")
+                char = None
+            if char in charPressed:
+                return charPressed.index(char)
+
 if __name__ == "__main__":
-    print(GetAsyncKeyState(["w", "a", "s", "d", " "]))
-"""
+    print(GetAsyncKeyState(["w", "a", "s", "d", " ", "NA"]))
