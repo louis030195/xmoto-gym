@@ -162,6 +162,7 @@ def capturedata(zone, debug=False): #Param to get only screen
         # Grab the data
         region = {'top': zone[0], 'left': zone[1], 'width': zone[2], 'height': zone[3]}
         screen = np.array(sct.grab(region))
+        #screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
     #screen = np.array(pyautogui.screenshot(region=zone))
     #screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
     #new_screen,original_image = process_img(screen)

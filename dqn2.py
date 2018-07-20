@@ -15,6 +15,7 @@ parser.add_argument("-c", "--copy-steps", type=int, default=4096, help="number o
 parser.add_argument("-l", "--learn-freq", type=int, default=4, help="number of game steps between each training step")
 
 # Irrelevant hparams
+parser.add_argument("-p", "--pretrain", action="store_true", default="False", help="pretrain with a action file")
 parser.add_argument("-s", "--save-steps", type=int, default=100, help="number of training steps between saving checkpoints")
 parser.add_argument("-r", "--render", action="store_true", default=False, help="render the game during training or testing")
 parser.add_argument("-t", "--test", action="store_true", default=False, help="test (no learning and minimal epsilon)")
@@ -34,11 +35,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 sns.set()
 
-
-
 env = gym.make("Xmoto-v0")
+
 
 def q_network(net, name, reuse=False):
     with tf.variable_scope(name, reuse=reuse) as scope:
@@ -56,7 +57,7 @@ def q_network(net, name, reuse=False):
 
 # Now for the training operations
 #learning_rate = 1e-4
-learning_rate = 1e-1
+learning_rate = 1e-4
 training_start = 100  # start training after 10,000 game steps
 discount_rate = 0.99
 batch_size = 64
@@ -128,6 +129,10 @@ steps = []
 
 total_actions = [0] * 6 # To log number of times actions have been taken
 
+if args.pretrain:
+    file = open("pretrain.txt","r")
+    pretrain_actions = file.read()
+
 path = os.path.join(args.jobid, "model")
 with tf.Session() as sess:
     if os.path.isfile(path + ".index"):
@@ -152,15 +157,21 @@ with tf.Session() as sess:
         q_values = online_q_values.eval(feed_dict={X_state: [state]})
         action = epsilon_greedy(q_values, step)
 
+
         # Online DQN plays
+        if args.pretrain and step < len(pretrain_actions):
+            action = int(pretrain_actions[step])
         next_state, reward, done, info = env.step(action)
         returnn += reward
 
+
+
+
         total_actions[action]+=1
-        print("\n\n\n         w  a  s  d \" \" ent")
+        print("\nw  a  s  d \" \" ent")
         print("Total actions [%s]" % ", ".join(map(str, total_actions)))
         print("Rewarded " + str(reward))
-        print("Total " + str(returnn) + "\n\n\n")
+        print("Total " + str(returnn) + "\n")
 
         # Let's memorize what happened
         replay_memory.append((state, action, reward, next_state, done))

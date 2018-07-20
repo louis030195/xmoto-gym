@@ -11,6 +11,7 @@ import pyautogui
 # 3rd party modules
 from gym import spaces
 import gym
+from gym.utils import seeding
 import numpy as np
 import subprocess
 import time
@@ -20,21 +21,26 @@ from gym_xmoto.envs.capturedata2 import capturedata
 
 class XmotoEnv(gym.Env):
 
-  ACTION = ["w", "a", "s", "d", " ", "enter"]
+  ACTION = ["w", "a", "s", "d", " ", "NA"]
   SCREEN_HEIGHT, SCREEN_WIDTH  = 720, 480
   TOTAL_WINS = 0
 
   # DRIVE -------------------------
   def _take_action(self, key):
+      if str(key) == "NA":
+          return 0
       if self.prevw == 1 :
           pyautogui.keyUp("w")
       pyautogui.keyDown(str(key))
+      #pyautogui.keyUp(str(key))
+
       if str(key) == "w":
-          self.prevw = 1
+        self.prevw = 1
       else :
         pyautogui.keyUp(str(key))
         self.prevw = 0
-      return 0#.01 if str(key) == "w" else 0
+
+      return 0.1 if str(key) == "w" else 0
 
   #  -------------------------
 
@@ -42,7 +48,8 @@ class XmotoEnv(gym.Env):
   def _get_state(self):
       #screen, distance  = capturedata((80,550,120,100), onlyscreen=False) # minimap
       #return screen, distance
-      return capturedata((80,120,self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
+
+      return capturedata((80, 120, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
 
 
   def _action_tostring(self, action):
@@ -53,6 +60,8 @@ class XmotoEnv(gym.Env):
     self.viewer = None
     self.state = None
     self.prevw = 1
+    #self.frameskip = (2, 5)
+    self.seed()
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
     #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
@@ -66,7 +75,13 @@ class XmotoEnv(gym.Env):
     #self.observation_space = spaces.Discrete(1)
     #self._prev_dist_apple = 0
 
-
+  def seed(self, seed=None):
+    self.np_random, seed1 = seeding.np_random(seed)
+    # Derive a random seed. This gets passed as a uint, but gets
+    # checked as an int elsewhere, so we need to keep it below
+    # 2**31.
+    seed2 = seeding.hash_seed(seed1 + 1) % 2**31
+    return [seed1, seed2]
 
 
   def step(self, action):
@@ -97,11 +112,19 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-    reward = -0.01 # speed up ?
-    #if isinstance(action, int):
-    self._take_action(self.ACTION[action])
-    if self._action_tostring(action) == "w":
-        reward += 0.1
+    #reward = -0.01 # speed up ?
+    reward = 0
+
+    """
+    # Frameskip stuff
+    if isinstance(self.frameskip, int):
+        num_steps = self.frameskip
+    else:
+        num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
+    for _ in range(num_steps):
+    """
+    reward += self._take_action(self.ACTION[action])
+
     #self.state, dist_apple = self._get_state()
     self.state = self._get_state()
     #print("DIST APPLE : "+str(dist_apple))
@@ -127,7 +150,7 @@ class XmotoEnv(gym.Env):
 
 
   def reset(self):
-    self._take_action(self.ACTION[5])
+    self._take_action("enter")
     #self.state = np.random.rand(1,)
     #return np.array(self.state)
     #self.state, dist_apple = self._get_state()
