@@ -29,18 +29,18 @@ class XmotoEnv(gym.Env):
   def _take_action(self, key):
       if str(key) == "NA":
           return 0
-      #if self.prevw == 1 :
-        #  pyautogui.keyUp("w")
+      if self.prevw == 1 :
+          pyautogui.keyUp("w")
       pyautogui.keyDown(str(key))
-      pyautogui.keyUp(str(key))
-      """
+      #pyautogui.keyUp(str(key))
+
       if str(key) == "w":
-          self.prevw = 1
+        self.prevw = 1
       else :
         pyautogui.keyUp(str(key))
         self.prevw = 0
-        """
-      return 0#.1 if str(key) == "w" else 0
+
+      return 0.1 if str(key) == "w" else 0
 
   #  -------------------------
 
@@ -60,7 +60,7 @@ class XmotoEnv(gym.Env):
     self.viewer = None
     self.state = None
     self.prevw = 1
-    self.frameskip = (2, 5)
+    #self.frameskip = (2, 5)
     self.seed()
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
@@ -115,12 +115,15 @@ class XmotoEnv(gym.Env):
     #reward = -0.01 # speed up ?
     reward = 0
 
+    """
+    # Frameskip stuff
     if isinstance(self.frameskip, int):
         num_steps = self.frameskip
     else:
         num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
     for _ in range(num_steps):
-        reward += self._take_action(self.ACTION[action])
+    """
+    reward += self._take_action(self.ACTION[action])
 
     #self.state, dist_apple = self._get_state()
     self.state = self._get_state()

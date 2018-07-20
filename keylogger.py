@@ -29,19 +29,30 @@ def keypress():
     char = getch()
 
 def GetAsyncKeyState(charPressed):
+    trainingTime = 10
+    print("Start teaching agent in 3 seconds ...\nTraining for " + str(trainingTime) + " secs")
+    time.sleep(3)
+    print("GO !")
     global char
     char = None
+    t_end = time.time() + trainingTime
     _thread.start_new_thread(keypress, ())
-    print("zzzzz " + str(char))
-    while True:
+    file = open("pretrain.txt","w")
+    while time.time() < t_end:
+
         if char is not None:
             try:
                 print("Key pressed is " + char)
             except UnicodeDecodeError:
                 print("character can not be decoded, sorry!")
                 char = None
+            _thread.start_new_thread(keypress, ())
             if char in charPressed:
-                return charPressed.index(char)
+                file.write(str(charPressed.index(char)))
+            char = None
+    _thread.exit()
 
 if __name__ == "__main__":
     print(GetAsyncKeyState(["w", "a", "s", "d", " ", "NA"]))
+    #file = open("pretrain.txt","r")
+    #print(file.read()[0])
