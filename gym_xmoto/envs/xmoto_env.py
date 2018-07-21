@@ -112,8 +112,8 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
-    #reward = -0.01 # speed up ?
-    reward = 0
+    reward = -0.01 # speed up ?
+    #reward = 0
 
     """
     # Frameskip stuff
