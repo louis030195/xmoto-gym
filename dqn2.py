@@ -57,7 +57,7 @@ def q_network(net, name, reuse=False):
 
 # Now for the training operations
 #learning_rate = 1e-4
-learning_rate = 1
+learning_rate = 1 if args.pretrain else 1e-2
 training_start = 100  # start training after 100 game steps
 discount_rate = 0.99
 batch_size = 64
