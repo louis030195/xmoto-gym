@@ -2,8 +2,6 @@
 
 OpenAi Gym with Xmoto !
 
-https://github.com/openai/gym
-
 
 # Version 0
 [Video](https://www.youtube.com/watch?v=ks1ci2bMIiY&feature=youtu.be)
@@ -36,13 +34,13 @@ https://github.com/openai/gym
 
   # Usage
 
-  python -m dqn2
+  python dqn.py
 
-  ```
+  To pretrain using behavioural cloning, you need to record yourself winning
+  a xmoto level with the keylogger, and then you can start the AI like that:
+  python dqn.py -p
 
-  import gym
-  import gym_xmoto
-
-  env = gym.make('Xmoto-v0')
-
-  ```
+  # Libraries used
+  
+  https://github.com/openai/gym
+  https://github.com/GiacomoLaw/Keylogger
