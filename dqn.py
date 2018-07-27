@@ -15,7 +15,7 @@ parser.add_argument("-c", "--copy-steps", type=int, default=4096, help="number o
 parser.add_argument("-l", "--learn-freq", type=int, default=4, help="number of game steps between each training step")
 
 # Irrelevant hparams
-parser.add_argument("-p", "--pretrain", action="store_true", default="False", help="pretrain with a action file")
+parser.add_argument("-p", "--pretrain", action="store_true", default=False, help="pretrain with a action file")
 parser.add_argument("-s", "--save-steps", type=int, default=100, help="number of training steps between saving checkpoints")
 parser.add_argument("-r", "--render", action="store_true", default=False, help="render the game during training or testing")
 parser.add_argument("-t", "--test", action="store_true", default=False, help="test (no learning and minimal epsilon)")
@@ -39,7 +39,9 @@ import time
 sns.set()
 
 env = gym.make("Xmoto-v0")
-
+start_time = time.time()
+x = 1 # displays the frame rate every 1 second
+counter = 0
 
 def q_network(net, name, reuse=False):
     with tf.variable_scope(name, reuse=reuse) as scope:
@@ -157,15 +159,24 @@ with tf.Session() as sess:
         q_values = online_q_values.eval(feed_dict={X_state: [state]})
         action = epsilon_greedy(q_values, step)
 
-
         # Online DQN plays
-        if args.pretrain and step < len(pretrain_actions):
-            action = int(pretrain_actions[step * 2]) # * 2 because the keylogger
+        if args.pretrain and step * 2 < len(pretrain_actions):
+            action = env.ACTION.index(pretrain_actions[step * 2]) # * 2 because the keylogger
                                                      # Does \n between every key
+
+
         next_state, reward, done, info = env.step(action)
         returnn += reward
 
-
+        print("Time : ", start_time - time.time())
+        start_time = time.time()
+        """
+        counter+=1
+        if (time.time() - start_time) > x :
+            print("FPS: ", counter / (time.time() - start_time))
+            counter = 0
+            start_time = time.time()
+        """
 
 
         total_actions[action]+=1

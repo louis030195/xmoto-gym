@@ -15,7 +15,7 @@ from gym.utils import seeding
 import numpy as np
 import subprocess
 import time
-from gym_xmoto.envs.capturedata2 import capturedata
+from gym_xmoto.envs.capturedata import capturedata
 
 
 
@@ -26,29 +26,20 @@ class XmotoEnv(gym.Env):
   TOTAL_WINS = 0
 
   # DRIVE -------------------------
-  def _take_action(self, key):
-      if str(key) == "NA":
-          return 0
-      if self.prevw == 1 :
-          pyautogui.keyUp("w")
-      pyautogui.keyDown(str(key))
-      #pyautogui.keyUp(str(key))
-
-      if str(key) == "w":
-        self.prevw = 1
-      else :
+  """
+  Start is used to define if we should keep the key down or not
+  """
+  def _take_action(self, key, start):
+      if start:
+        pyautogui.keyDown(str(key))
+        return 0.1 if str(key) == "w" else 0 # Keep advancing
+      else:
         pyautogui.keyUp(str(key))
-        self.prevw = 0
-
-      return 0.1 if str(key) == "w" else 0
 
   #  -------------------------
 
 
   def _get_state(self):
-      #screen, distance  = capturedata((80,550,120,100), onlyscreen=False) # minimap
-      #return screen, distance
-
       return capturedata((80, 120, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
 
 
@@ -59,21 +50,14 @@ class XmotoEnv(gym.Env):
 
     self.viewer = None
     self.state = None
-    self.prevw = 1
-    #self.frameskip = (2, 5)
+    self.frameskip = (5,20)
     self.seed()
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
-    #self.observation_space = spaces.Box(0, 255, [120, 100, 3])
-    #self.observation_space = spaces.Box(0, 255,
-    #[int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 4])
     self.observation_space = spaces.Box(low=0,
                high=255,
                shape=(int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 3),
                dtype=np.uint8)
-    #self.observation_space = spaces.Box(low=0, high=255, shape=(120, 100, 3), dtype=np.uint8)
-    #self.observation_space = spaces.Discrete(1)
-    #self._prev_dist_apple = 0
 
   def seed(self, seed=None):
     self.np_random, seed1 = seeding.np_random(seed)
@@ -113,31 +97,24 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
     reward = -0.01 # speed up ?
-    #reward = 0
 
-    """
     # Frameskip stuff
     if isinstance(self.frameskip, int):
         num_steps = self.frameskip
     else:
+        # Shouldn't be random but determined by the neural network
         num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
     for _ in range(num_steps):
-    """
-    reward += self._take_action(self.ACTION[action])
-
-    #self.state, dist_apple = self._get_state()
+        reward += self._take_action(self.ACTION[action], True)
+    self._take_action(self.ACTION[action], False) # Stop this action
     self.state = self._get_state()
-    #print("DIST APPLE : "+str(dist_apple))
-    #if(dist_apple < self._prev_dist_apple):
-    #    reward += 0.1
-    #self._prev_dist_apple = dist_apple
+
 
     dead = pyautogui.locateOnScreen('screenshots/dead.png', grayscale=True) != None
     win = pyautogui.locateOnScreen('screenshots/win.png', grayscale=True) != None
 
     episode_over = dead | win
 
-    #print("ep over : "+str(episode_over))
     if dead:
         reward += -0.5
     if win:
@@ -150,11 +127,8 @@ class XmotoEnv(gym.Env):
 
 
   def reset(self):
-    self._take_action("enter")
-    #self.state = np.random.rand(1,)
-    #return np.array(self.state)
-    #self.state, dist_apple = self._get_state()
-    #return self.state
+    self._take_action("enter", True)
+    self._take_action("enter", False)
     return self._get_state()
 
   def render(self):

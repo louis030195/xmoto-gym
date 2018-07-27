@@ -26,5 +26,3 @@ w
 w
 a
 a
-Return
-exclam
