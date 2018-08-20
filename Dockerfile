@@ -7,8 +7,7 @@
 
 FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu14.04
 
-ARG TENSORFLOW_VERSION=0.12.1
-ARG KERAS_VERSION=1.2.0
+ARG TENSORFLOW_VERSION=1.9.0
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
@@ -99,72 +98,21 @@ RUN pip --no-cache-dir install \
 RUN apt-get update && apt-get install -y \
 		python-numpy \
 		python-scipy \
-		python-nose \
 		python-h5py \
 		python-skimage \
 		python-matplotlib \
 		python-pandas \
 		python-sklearn \
-		python-sympy \
 		&& \
 	apt-get clean && \
 	apt-get autoremove && \
 	rm -rf /var/lib/apt/lists/*
-
-# Install other useful Python packages using pip
-RUN pip --no-cache-dir install --upgrade ipython && \
-	pip --no-cache-dir install \
-		Cython \
-		ipykernel \
-		jupyter \
-		path.py \
-		Pillow \
-		pygments \
-		six \
-		sphinx \
-		wheel \
-		zmq \
-		&& \
-	python -m ipykernel.kernelspec
 
 
 # Install TensorFlow
 RUN pip --no-cache-dir install \
 	https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow_gpu-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
 
-
-# Install Keras
-RUN pip --no-cache-dir install git+git://github.com/fchollet/keras.git@${KERAS_VERSION}
-
-RUN luarocks install nn && \
-	luarocks install cutorch && \
-	luarocks install cunn && \
-    luarocks install loadcaffe && \
-	\
-	cd /root && git clone https://github.com/soumith/cudnn.torch.git && cd cudnn.torch && \
-	git checkout R4 && \
-	luarocks make && \
-	\
-	cd /root && git clone https://github.com/facebook/iTorch.git && \
-	cd iTorch && \
-	luarocks make
-
-# Install OpenCV
-RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
-	cd /root/opencv && \
-	mkdir build && \
-	cd build && \
-	cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON .. && \
-	make -j"$(nproc)"  && \
-	make install && \
-	ldconfig && \
-	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
-
-# Set up notebook config
-COPY jupyter_notebook_config.py /root/.jupyter/
-
-# Jupyter has issues with being run directly: https://github.com/ipython/ipython/issues/7062
-COPY run_jupyter.sh /root/
 
 # Expose Ports for TensorBoard (6006), Ipython (8888)
 EXPOSE 6006 8888
@@ -185,20 +133,8 @@ RUN echo X11Forwarding yes >> /etc/ssh/ssh_config
 # Fix PAM login issue with sshd
 RUN sed -i 's/session    required     pam_loginuid.so/#session    required     pam_loginuid.so/g' /etc/pam.d/sshd
 
-# Upstart and DBus have issues inside docker. We work around in order to install firefox.
-RUN dpkg-divert --local --rename --add /sbin/initctl && ln -sf /bin/true /sbin/initctl
 
-# Installing fuse package (libreoffice-java dependency) and it's going to try to create
-# a fuse device without success, due the container permissions. || : help us to ignore it. 
-# Then we are going to delete the postinst fuse file and try to install it again!
-# Thanks Jerome for helping me with this workaround solution! :)
-# Now we are able to install the libreoffice-java package  
-RUN apt-get -y install fuse  || :
-RUN rm -rf /var/lib/dpkg/info/fuse.postinst
-RUN apt-get -y install fuse
-
-# Installing the apps: Firefox, flash player plugin, LibreOffice and xterm
-# libreoffice-base installs libreoffice-java mentioned before
+# Installing the apps
 RUN apt-get install -y xmoto xterm
 
 # Set locale (fix the locale warnings)

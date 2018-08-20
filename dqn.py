@@ -53,7 +53,7 @@ def q_network(net, name, reuse=False):
                 padding=padding, activation=activation, kernel_initializer=initializer)
         net = tf.layers.dense(tf.contrib.layers.flatten(net), 256, activation=tf.nn.relu, kernel_initializer=initializer)
         net = tf.layers.dense(net, env.action_space.n, kernel_initializer=initializer)
-
+        #print(tf.summary.tensor_summary("net", net))
     trainable_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
     return net, trainable_vars
 
@@ -161,7 +161,8 @@ with tf.Session() as sess:
 
         # Online DQN plays
         if args.pretrain and step * 2 < len(pretrain_actions):
-            action = env.ACTION.index(pretrain_actions[step * 2]) # * 2 because the keylogger
+            print(pretrain_actions[step * 2].split(',')[0])
+            action = env.ACTION.index(pretrain_actions[step * 2].split(',')[0]) # * 2 because the keylogger
                                                      # Does \n between every key
 
 

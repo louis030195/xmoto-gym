@@ -50,7 +50,7 @@ class XmotoEnv(gym.Env):
 
     self.viewer = None
     self.state = None
-    self.frameskip = (5,20)
+    self.frameskip = (1,2)
     self.seed()
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
