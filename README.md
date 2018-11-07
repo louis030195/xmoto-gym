@@ -2,12 +2,7 @@
 
 OpenAi Gym with Xmoto !
 
-
-# Version 0
-[Video](https://www.youtube.com/watch?v=ks1ci2bMIiY&feature=youtu.be)
-
-# Version 1 - Behaviour cloning parameter
-[Video](https://www.youtube.com/watch?v=MRZqzt0YG-s&feature=youtu.be)
+(Will clean code soon)
 
 
 # Actions
@@ -26,21 +21,24 @@ OpenAi Gym with Xmoto !
   # Installation
 
   ```
-  sudo apt-get install scrot
-  virtualenv env --python=python3
-  . env/bin/activate
   pip install -e .
+  pip install -e batch-ppo-master
   ```
 
   # Usage
 
+  open Xmoto set config at 800x600
+  Move Xmoto exactly at top left corner
+
+  With DQN
+
+  ```
   python dqn.py
+  ```
 
-  To pretrain using behavioural cloning, you need to record yourself winning
-  a xmoto level with the keylogger, and then you can start the AI like that:
-  python dqn.py -p
+  With PPO
 
-  # Libraries used
-  
-  https://github.com/openai/gym
-  https://github.com/GiacomoLaw/Keylogger
+  ```
+  python3 -m batch-ppo-master.agents.scripts.train --config=xmoto --noenv_processes
+  ```
+

@@ -16,6 +16,7 @@ import numpy as np
 import subprocess
 import time
 from gym_xmoto.envs.capturedata import capturedata
+import cv2
 
 
 
@@ -56,7 +57,7 @@ class XmotoEnv(gym.Env):
     self.action_space = spaces.Discrete(len(self.ACTION))
     self.observation_space = spaces.Box(low=0,
                high=255,
-               shape=(int(self.SCREEN_HEIGHT / 4), int(self.SCREEN_WIDTH / 4), 3),
+               shape=(int(self.SCREEN_WIDTH / 4), int(self.SCREEN_HEIGHT / 4), 4),
                dtype=np.uint8)
 
   def seed(self, seed=None):
@@ -96,6 +97,7 @@ class XmotoEnv(gym.Env):
              However, official evaluations of your agent are not allowed to
              use this for learning.
     """
+
     reward = -0.01 # speed up ?
 
     # Frameskip stuff
@@ -110,15 +112,27 @@ class XmotoEnv(gym.Env):
     self.state = self._get_state()
 
 
-    dead = pyautogui.locateOnScreen('screenshots/dead.png', grayscale=True) != None
-    win = pyautogui.locateOnScreen('screenshots/win.png', grayscale=True) != None
+    template = cv2.imread('screenshots/dead.png', 0)
+    res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.5
+    loc = np.where( res >= threshold)
+    dead = len(loc[0]) > 0
+
+    template = cv2.imread('screenshots/win.png', 0)
+    res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.5
+    loc = np.where( res >= threshold)
+    win = len(loc[0]) > 0
+    #dead = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/dead.png', grayscale=True) != None
+    #win = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/win.png', grayscale=True) != None
 
     episode_over = dead | win
+    print("Episode over : ", episode_over)
 
     if dead:
-        reward += -0.5
+        reward += -50
     if win:
-        reward += 0.5 # TODO : hit next level key ?
+        reward += 50 # TODO : hit next level key ?
         self.TOTAL_WINS += 1
         print("Total wins " + str(self.TOTAL_WINS))
 
