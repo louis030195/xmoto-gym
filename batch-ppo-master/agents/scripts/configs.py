@@ -165,7 +165,8 @@ def xmoto():
   locals().update(default())
   # Environment
   env = 'Xmoto-v0'
-  max_length = 100
+  use_gpu = False
+  max_length = 10
   steps = 3e7  # 30M
   update_every = 60
   # Network

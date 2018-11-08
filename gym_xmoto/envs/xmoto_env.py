@@ -113,21 +113,25 @@ class XmotoEnv(gym.Env):
 
 
     template = cv2.imread('screenshots/dead.png', 0)
+    w, h = template.shape[::-1]
+    template = cv2.resize(template , dsize=(int(w / 4), int(h / 4)))
     res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.5
+    threshold = 0.7
     loc = np.where( res >= threshold)
     dead = len(loc[0]) > 0
 
     template = cv2.imread('screenshots/win.png', 0)
+    w, h = template.shape[::-1]
+    template = cv2.resize(template , dsize=(int(w / 4), int(h / 4)))
     res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.5
+    threshold = 0.7
     loc = np.where( res >= threshold)
     win = len(loc[0]) > 0
     #dead = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/dead.png', grayscale=True) != None
     #win = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/win.png', grayscale=True) != None
 
     episode_over = dead | win
-    print("Episode over : ", episode_over)
+    #print("Episode over : ", episode_over)
 
     if dead:
         reward += -50
