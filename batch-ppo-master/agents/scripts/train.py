@@ -48,6 +48,7 @@ def _create_environment(config):
   """
   if isinstance(config.env, str):
     env = gym.make(config.env)
+    env.render()
   else:
     env = config.env()
   if config.max_length:
@@ -64,6 +65,7 @@ def _create_environment(config):
     raise NotImplementedError(message)
   env = tools.wrappers.ConvertTo32Bit(env)
   env = tools.wrappers.CacheSpaces(env)
+
   return env
 
 

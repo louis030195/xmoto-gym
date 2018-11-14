@@ -41,7 +41,7 @@ class XmotoEnv(gym.Env):
 
 
   def _get_state(self):
-      return capturedata((80, 120, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
+      return capturedata((80, 90, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
 
 
   def _action_tostring(self, action):
@@ -49,7 +49,7 @@ class XmotoEnv(gym.Env):
 
   def __init__(self):
 
-    self.viewer = None
+    self.viewer = False
     self.state = None
     self.frameskip = (1,2)
     self.seed()
@@ -109,21 +109,19 @@ class XmotoEnv(gym.Env):
     for _ in range(num_steps):
         reward += self._take_action(self.ACTION[action], True)
     self._take_action(self.ACTION[action], False) # Stop this action
-    self.state = self._get_state()
 
+    tmpState = self._get_state()
 
     template = cv2.imread('screenshots/dead.png', 0)
     w, h = template.shape[::-1]
-    template = cv2.resize(template , dsize=(int(w / 4), int(h / 4)))
-    res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(cv2.cvtColor(tmpState[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where( res >= threshold)
     dead = len(loc[0]) > 0
 
     template = cv2.imread('screenshots/win.png', 0)
     w, h = template.shape[::-1]
-    template = cv2.resize(template , dsize=(int(w / 4), int(h / 4)))
-    res = cv2.matchTemplate(cv2.cvtColor(self.state, cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(cv2.cvtColor(tmpState[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     loc = np.where( res >= threshold)
     win = len(loc[0]) > 0
@@ -131,7 +129,6 @@ class XmotoEnv(gym.Env):
     #win = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/win.png', grayscale=True) != None
 
     episode_over = dead | win
-    #print("Episode over : ", episode_over)
 
     if dead:
         reward += -50
@@ -141,13 +138,18 @@ class XmotoEnv(gym.Env):
         print("Total wins " + str(self.TOTAL_WINS))
 
 
-    return self.state, reward, episode_over, {dead}
+    return tmpState[0], reward, episode_over, {dead}
 
 
   def reset(self):
     self._take_action("enter", True)
     self._take_action("enter", False)
-    return self._get_state()
+    return self._get_state()[0]
 
   def render(self):
-      pass
+      subprocess.Popen(["xmoto", "-l", "tut1"])
+      
+      self.viewer = not self.viewer
+
+  def get_viewer(self):
+      return self.viewer
