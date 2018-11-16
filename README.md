@@ -42,3 +42,17 @@ OpenAi Gym with Xmoto !
   python3 -m batch-ppo-master.agents.scripts.train --config=xmoto --noenv_processes
   ```
 
+	## Docker
+
+	```
+	docker build .
+	docker run -p 5900:5900 <image hash>
+	vncviewer localhost:5900
+	```
+
+	Second one : 
+	```
+	docker run -p 5901:5900 <image hash>
+	vncviewer localhost:5901
+	```
+

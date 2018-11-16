@@ -1,20 +1,23 @@
-FROM ubuntu:16.04
-
+FROM ubuntu:18.04
+ 
 RUN apt-get update -y
 RUN apt-get upgrade -y
 
-# Installing the apps
-RUN apt-get install -y python3.6 python-pip python-dev build-essential
+ADD ./ xmoto-gym
 
-ADD ../xmoto-gym
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata \
+ python3.6 \
+ python-pip \
+ python-dev \
+ build-essential \
+ xmoto \
+ xvfb \
+ x11vnc
 
-RUN cd xmoto-gym
+RUN pip install -e xmoto-gym
 
-RUN pip install -e .
+RUN pip install -e xmoto-gym/batch-ppo-master
 
-RUN pip install -e batch-ppo-master
+CMD bash xmoto-gym/run.sh
 
-CMD /usr/games/xmoto
-
-EXPOSE 22
-CMD ["/bin/bash"]
+EXPOSE 5900
