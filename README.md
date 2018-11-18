@@ -23,8 +23,11 @@ OpenAi Gym with Xmoto !
   Install [Xmoto](https://xmoto.tuxfamily.org/)
 
   ```
+  git clone https://github.com/louis030195/xmoto-gym.git
+  cd xmoto-gym
   pip install -e .
   pip install -e batch-ppo-master
+  sudo apt-get install faketime
   ```
 
   # Usage
@@ -35,7 +38,7 @@ OpenAi Gym with Xmoto !
   python dqn.py
   ```
 
-  With PPO
+  With PPO (doesn't work atm)
 
   ```
   python3 -m batch-ppo-master.agents.scripts.train --config=xmoto --noenv_processes

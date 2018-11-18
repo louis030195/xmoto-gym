@@ -8,14 +8,17 @@ import math
 import pkg_resources
 import random
 import pyautogui
-# 3rd party modules
+
 from gym import spaces
 import gym
 from gym.utils import seeding
+from gym_xmoto.envs.capturedata import capturedata
+
 import numpy as np
 import subprocess
+import signal
+import os
 import time
-from gym_xmoto.envs.capturedata import capturedata
 import cv2
 
 
@@ -25,6 +28,7 @@ class XmotoEnv(gym.Env):
   ACTION = ["w", "a", "s", "d", " ", "NA"]
   SCREEN_HEIGHT, SCREEN_WIDTH  = 720, 480
   TOTAL_WINS = 0
+  LEVELS = open('gym_xmoto/envs/levels.csv', 'r').readlines()
 
   # DRIVE -------------------------
   """
@@ -33,7 +37,6 @@ class XmotoEnv(gym.Env):
   def _take_action(self, key, start):
       if start:
         pyautogui.keyDown(str(key))
-        return 0.1 if str(key) == "w" else 0 # Keep advancing
       else:
         pyautogui.keyUp(str(key))
 
@@ -49,9 +52,10 @@ class XmotoEnv(gym.Env):
 
   def __init__(self):
 
+    self.current_level = 0
     self.viewer = False
     self.state = None
-    self.frameskip = (1,2)
+    self.frameskip = (1,8)
     self.seed()
     # WASD SPACE ENTER
     self.action_space = spaces.Discrete(len(self.ACTION))
@@ -98,7 +102,7 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
 
-    reward = -0.01 # speed up ?
+    reward = -0.1 # speed up ?
 
     # Frameskip stuff
     if isinstance(self.frameskip, int):
@@ -107,7 +111,7 @@ class XmotoEnv(gym.Env):
         # Shouldn't be random but determined by the neural network
         num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
     for _ in range(num_steps):
-        reward += self._take_action(self.ACTION[action], True)
+        self._take_action(self.ACTION[action], True)
     self._take_action(self.ACTION[action], False) # Stop this action
 
     tmpState = self._get_state()
@@ -136,6 +140,8 @@ class XmotoEnv(gym.Env):
         reward += 50 # TODO : hit next level key ?
         self.TOTAL_WINS += 1
         print("Total wins " + str(self.TOTAL_WINS))
+        if self.TOTAL_WINS > 100:
+            self.next_level()
 
 
     return tmpState[0], reward, episode_over, {dead}
@@ -147,9 +153,14 @@ class XmotoEnv(gym.Env):
     return self._get_state()[0]
 
   def render(self):
-      subprocess.Popen(["xmoto", "-l", "tut1"])
-      
-      self.viewer = not self.viewer
+      self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", "_iL00_"])
+      time.sleep(2)
+      pyautogui.click(x=200, y=200)
 
-  def get_viewer(self):
-      return self.viewer
+  def next_level(self):
+      if self.current_level < 44:
+        self.current_level += 1
+        os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+        self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", "_iL0" + str(self.current_level) + "_"])
+        pyautogui.click(x=200, y=200)
+

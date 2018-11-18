@@ -39,6 +39,7 @@ import time
 sns.set()
 
 env = gym.make("Xmoto-v0")
+env.render()
 start_time = time.time()
 x = 1 # displays the frame rate every 1 second
 counter = 0
@@ -169,7 +170,7 @@ with tf.Session() as sess:
         next_state, reward, done, info = env.step(action)
         returnn += reward
 
-        print("Time : ", start_time - time.time())
+        #print("Time : ", start_time - time.time())
         start_time = time.time()
         """
         counter+=1
@@ -181,10 +182,10 @@ with tf.Session() as sess:
 
 
         total_actions[action]+=1
-        print("\nw  a  s  d \" \" ent")
-        print("Total actions [%s]" % ", ".join(map(str, total_actions)))
-        print("Rewarded " + str(reward))
-        print("Total " + str(returnn) + "\n")
+        #print("\nw  a  s  d \" \" ent")
+        #print("Total actions [%s]" % ", ".join(map(str, total_actions)))
+        #print("Rewarded " + str(reward))
+        #print("Total " + str(returnn) + "\n")
 
         # Let's memorize what happened
         replay_memory.append((state, action, reward, next_state, done))
