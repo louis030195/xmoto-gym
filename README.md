@@ -20,15 +20,14 @@ OpenAi Gym with Xmoto !
 
   # Installation
 
+  Install [Xmoto](https://xmoto.tuxfamily.org/)
+
   ```
   pip install -e .
   pip install -e batch-ppo-master
   ```
 
   # Usage
-
-  open Xmoto set config at 800x600
-  Move Xmoto exactly at top left corner
 
   With DQN
 
