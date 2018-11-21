@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+# -*- coding: latin-1 -*-
 
 from __future__ import division, print_function, unicode_literals
 
 # Handle arguments (before slow imports so --help can be fast)
 import argparse
 parser = argparse.ArgumentParser(
-    description="Train a DQN net for Atari games.")
+    description="Train a DQN net fro Xmoto")
 
 # Important hparams
 #parser.add_argument("-g", "--game", type=str, default="Pong")
@@ -15,12 +16,12 @@ parser.add_argument("-c", "--copy-steps", type=int, default=4096, help="number o
 parser.add_argument("-l", "--learn-freq", type=int, default=4, help="number of game steps between each training step")
 
 # Irrelevant hparams
+parser.add_argument("-nl", "--nextlevel", type=int, default=200, help="number of steps to go next level")
 parser.add_argument("-p", "--pretrain", action="store_true", default=False, help="pretrain with a action file")
 parser.add_argument("-s", "--save-steps", type=int, default=100, help="number of training steps between saving checkpoints")
-parser.add_argument("-r", "--render", action="store_true", default=False, help="render the game during training or testing")
 parser.add_argument("-t", "--test", action="store_true", default=False, help="test (no learning and minimal epsilon)")
 parser.add_argument("-v", "--verbosity", action="count", default=1, help="increase output verbosity")
-parser.add_argument("-j", "--jobid", default="123123", help="SLURM job ID")
+parser.add_argument("-j", "--jobid", default="models", help="SLURM job ID")
 
 args = parser.parse_args()
 
@@ -31,12 +32,7 @@ import numpy as np
 import os
 import tensorflow as tf
 import sys
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
 import time
-sns.set()
 
 env = gym.make("Xmoto-v0")
 env.render()
@@ -59,8 +55,8 @@ def q_network(net, name, reuse=False):
     return net, trainable_vars
 
 # Now for the training operations
-#learning_rate = 1e-4
-learning_rate = 1 if args.pretrain else 1e-2
+learning_rate = 1e-7
+#learning_rate = 1 if args.pretrain else 1e-2
 training_start = 100  # start training after 100 game steps
 discount_rate = 0.99
 batch_size = 64
@@ -153,8 +149,6 @@ with tf.Session() as sess:
                 training_iter, loss_val, mean_max_q, returnn))
                 sys.stdout.flush()
             state = env.reset()
-        if args.render:
-            env.render()
 
         # Online DQN evaluates what to do
         q_values = online_q_values.eval(feed_dict={X_state: [state]})
@@ -226,3 +220,7 @@ with tf.Session() as sess:
         if step % args.save_steps == 0:
             saver.save(sess, path)
             np.save(os.path.join(args.jobid, "{}.npy".format(args.jobid)), np.array((steps, returns)))
+
+        # Next level every x steps
+        if step % args.nextlevel == 0:
+            env.next_level()

@@ -2,8 +2,6 @@
 
 OpenAi Gym with Xmoto !
 
-(Will clean code soon)
-
 
 # Actions
  - W = ADVANCE
@@ -14,13 +12,11 @@ OpenAi Gym with Xmoto !
  - NA = no action
 
   # Observations
-  - Screen pixels (720x480x3)
+  - Screen pixels (720,480,3) resized to (180,120,3)
 
 
 
   # Installation
-
-  Install [Xmoto](https://xmoto.tuxfamily.org/)
 
   ```
   git clone https://github.com/louis030195/xmoto-gym.git
@@ -28,6 +24,7 @@ OpenAi Gym with Xmoto !
   pip install -e .
   pip install -e batch-ppo-master
   sudo apt-get install faketime
+  sudo apt-get install xmoto
   ```
 
   # Usage
@@ -38,23 +35,32 @@ OpenAi Gym with Xmoto !
   python dqn.py
   ```
 
-  With PPO (doesn't work atm)
+  With PPO
 
   ```
   python3 -m batch-ppo-master.agents.scripts.train --config=xmoto --noenv_processes
   ```
 
-	## Docker
 
-	```
+  ## Docker
+  ```
 	docker build .
 	docker run -p 5900:5900 <image hash>
 	vncviewer localhost:5900
-	```
+  ```
 
-	Second one : 
-	```
+  **Second agent:**
+  ```
 	docker run -p 5901:5900 <image hash>
 	vncviewer localhost:5901
-	```
+  ```
+
+  ...
+
+  ## Roadmap
+
+  - [ ] Distributed training
+  - [ ] Multiple algorithms
+  - [ ] Reward on hit apple (decrease score)
+  - [ ] Try others algorithms
 

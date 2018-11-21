@@ -12,7 +12,7 @@ import pyautogui
 from gym import spaces
 import gym
 from gym.utils import seeding
-from gym_xmoto.envs.capturedata import capturedata
+from gym_xmoto.envs.utils import capture_screen
 
 import numpy as np
 import subprocess
@@ -44,7 +44,7 @@ class XmotoEnv(gym.Env):
 
 
   def _get_state(self):
-      return capturedata((80, 90, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
+      return capture_screen((80, 90, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
 
 
   def _action_tostring(self, action):
@@ -52,7 +52,8 @@ class XmotoEnv(gym.Env):
 
   def __init__(self):
 
-    self.current_level = 0
+    pyautogui.FAILSAFE = False
+    self.levels = open('gym_xmoto/envs/levels.csv', 'r').readlines()
     self.viewer = False
     self.state = None
     self.frameskip = (1,8)
@@ -103,34 +104,25 @@ class XmotoEnv(gym.Env):
     """
 
     reward = -0.1 # speed up ?
-
+    #reward = 0
     # Frameskip stuff
     if isinstance(self.frameskip, int):
-        num_steps = self.frameskip
+      num_steps = self.frameskip
     else:
-        # Shouldn't be random but determined by the neural network
-        num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
+      # Shouldn't be random but determined by the neural network
+      num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
     for _ in range(num_steps):
-        self._take_action(self.ACTION[action], True)
+      self._take_action(self.ACTION[action], True)
     self._take_action(self.ACTION[action], False) # Stop this action
 
     tmpState = self._get_state()
 
-    template = cv2.imread('screenshots/dead.png', 0)
-    w, h = template.shape[::-1]
-    res = cv2.matchTemplate(cv2.cvtColor(tmpState[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
-    loc = np.where( res >= threshold)
-    dead = len(loc[0]) > 0
+    if len(self.template_matching('skip_this_report', tmpState)[0]) > 0:
+      self.next_level()
 
-    template = cv2.imread('screenshots/win.png', 0)
-    w, h = template.shape[::-1]
-    res = cv2.matchTemplate(cv2.cvtColor(tmpState[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
-    loc = np.where( res >= threshold)
-    win = len(loc[0]) > 0
-    #dead = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/dead.png', grayscale=True) != None
-    #win = pyautogui.locateOnScreen('/home/louis/Documents/xmoto-gym/screenshots/win.png', grayscale=True) != None
+    dead = len(self.template_matching('dead', tmpState)[0]) > 0
+
+    win = len(self.template_matching('win', tmpState)[0]) > 0
 
     episode_over = dead | win
 
@@ -140,12 +132,14 @@ class XmotoEnv(gym.Env):
         reward += 50 # TODO : hit next level key ?
         self.TOTAL_WINS += 1
         print("Total wins " + str(self.TOTAL_WINS))
-        if self.TOTAL_WINS > 100:
+
+        """
+        if self.TOTAL_WINS % 100 == 0: # Next level every 100 wins
             self.next_level()
+        """
 
 
     return tmpState[0], reward, episode_over, {dead}
-
 
   def reset(self):
     self._take_action("enter", True)
@@ -153,14 +147,20 @@ class XmotoEnv(gym.Env):
     return self._get_state()[0]
 
   def render(self):
-      self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", "_iL00_"])
-      time.sleep(2)
-      pyautogui.click(x=200, y=200)
+    self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", "tut1"], preexec_fn=os.setsid)
+    time.sleep(2)
+    pyautogui.click(x=200, y=200)
 
   def next_level(self):
-      if self.current_level < 44:
-        self.current_level += 1
-        os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
-        self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", "_iL0" + str(self.current_level) + "_"])
-        pyautogui.click(x=200, y=200)
+    os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+    self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", self.levels[random.randint(0, len(self.levels)-1)][0:-1]],
+    preexec_fn=os.setsid)
+    time.sleep(2)
+    pyautogui.click(x=200, y=200)
 
+  def template_matching(self, img_name, state):
+    template = cv2.imread('screenshots/' + img_name + '.png', 0)
+    w, h = template.shape[::-1]
+    res = cv2.matchTemplate(cv2.cvtColor(state[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    return np.where( res >= threshold)

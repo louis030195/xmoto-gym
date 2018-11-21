@@ -103,6 +103,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-
-# Random algorithms tried
-random_algos/
+# Virtual env
+xmoto_env
