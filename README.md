@@ -2,6 +2,8 @@
 
 OpenAi Gym with Xmoto !
 
+[![xmoto-gym](https://img.youtube.com/vi/GL6iTVeh19I/0.jpg)](https://www.youtube.com/watch?v=GL6iTVeh19I)
+
 
 # Actions
  - W = ADVANCE

@@ -166,7 +166,7 @@ def xmoto():
   # Environment
   env = 'Xmoto-v0'
   num_agents = 1
-  use_gpu = False
+  use_gpu = True
   max_length = 10
   steps = 3e4  # 30M
   update_every = 60
