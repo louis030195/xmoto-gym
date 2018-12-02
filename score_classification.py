@@ -6,6 +6,7 @@ from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+import os
 
 """
 Load score images
@@ -32,12 +33,34 @@ def create_model():
     return model
 
 """
+Extract digits images from an image of the score
+https://www.pyimagesearch.com/2017/02/13/recognizing-digits-with-opencv-and-python/
+"""
+def extract_digits(score_image):
+    # find contours in the thresholded image, then initialize the
+    # digit contours lists
+    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+    digitCnts = []
+
+    # loop over the digit area candidates
+    for c in cnts:
+        # compute the bounding box of the contour
+        (x, y, w, h) = cv2.boundingRect(c)
+
+        # if the contour is sufficiently large, it must be a digit
+        if w >= 15 and (h >= 30 and h <= 40):
+            digitCnts.append(c)
+
+    return digitCnts
+
+"""
 With the full score image, split it into single digit, classify, rebuild the number,
 return the full number
 """
 def score_value(score_image):
-    digits = []
-    # split image into digits append to digits
+    digits = extract_digits(score_image)
 
     # Get latest weights
     model = create_model()

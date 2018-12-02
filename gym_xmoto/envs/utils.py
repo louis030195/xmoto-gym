@@ -16,11 +16,11 @@ def capture_screen(zone, debug=False):
     """
     with mss.mss() as sct:
         region = {'top': zone[0], 'left': zone[1], 'width': zone[2], 'height': zone[3]}
-        screen = np.array(sct.grab(region))
+        screen = sct.grab(region)
     if debug:
         cv2.imshow('window', screen)
 
-    return cv2.resize(screen, dsize=(int(zone[2] / 4), int(zone[3] / 4))), screen
+    return cv2.resize(np.array(screen), dsize=(int(zone[2] / 4), int(zone[3] / 4))), screen
 
 def test_capture_screen(zone):
     print("Starting capturing data in 3 secs ...")
