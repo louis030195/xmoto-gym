@@ -108,3 +108,6 @@ xmoto_env
 
 # Models
 models
+
+# VS Code
+.vscode

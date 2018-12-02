@@ -103,8 +103,7 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
 
-    reward = -0.1 # speed up ?
-    #reward = 0
+    reward = -0.001 # speed up ?
     # Frameskip stuff
     if isinstance(self.frameskip, int):
       num_steps = self.frameskip
@@ -117,19 +116,20 @@ class XmotoEnv(gym.Env):
 
     tmpState = self._get_state()
 
-    if len(self.template_matching('skip_this_report', tmpState)[0]) > 0:
-      self.next_level()
+    if self.template_matching('skip_this_report', tmpState):
+      self.render() # esc exit level, no focus on the skip button
+      # Maybe can do 6 tabs to get focus on the button then enter ?
 
-    dead = len(self.template_matching('dead', tmpState)[0]) > 0
+    dead = self.template_matching('dead', tmpState)
 
-    win = len(self.template_matching('win', tmpState)[0]) > 0
+    win = self.template_matching('win', tmpState)
 
     episode_over = dead | win
 
     if dead:
-        reward += -50
+        reward += -1
     if win:
-        reward += 50 # TODO : hit next level key ?
+        reward += 1
         self.TOTAL_WINS += 1
         print("Total wins " + str(self.TOTAL_WINS))
 
@@ -151,6 +151,9 @@ class XmotoEnv(gym.Env):
     time.sleep(2)
     pyautogui.click(x=200, y=200)
 
+  def close(self):
+    os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+
   def next_level(self):
     os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
     self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", self.levels[random.randint(0, len(self.levels)-1)][0:-1]],
@@ -163,4 +166,4 @@ class XmotoEnv(gym.Env):
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(cv2.cvtColor(state[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
-    return np.where( res >= threshold)
+    return len(np.where( res >= threshold)[0]) > 0

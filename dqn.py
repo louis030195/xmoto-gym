@@ -222,5 +222,6 @@ with tf.Session() as sess:
             np.save(os.path.join(args.jobid, "{}.npy".format(args.jobid)), np.array((steps, returns)))
 
         # Next level every x steps
-        if step % args.nextlevel == 0:
-            env.next_level()
+        #if step % args.nextlevel == 0:
+        #    env.render()
+        #    env.next_level()
