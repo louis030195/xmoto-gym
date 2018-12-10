@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import os
+import cv2
+import time
 
 """
 Load score images
@@ -39,21 +41,50 @@ https://www.pyimagesearch.com/2017/02/13/recognizing-digits-with-opencv-and-pyth
 def extract_digits(score_image):
     # find contours in the thresholded image, then initialize the
     # digit contours lists
-    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+    """
+    cnts = cv2.findContours(score_image.copy(), cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+    cnts = cnts[0]
     digitCnts = []
 
     # loop over the digit area candidates
     for c in cnts:
         # compute the bounding box of the contour
         (x, y, w, h) = cv2.boundingRect(c)
-
         # if the contour is sufficiently large, it must be a digit
-        if w >= 15 and (h >= 30 and h <= 40):
+        if w >= 1 and (h >= 1 and h <= 10):
             digitCnts.append(c)
 
     return digitCnts
+    """
+    #http://hanzratech.in/2015/02/24/handwritten-digit-recognition-using-opencv-sklearn-and-python.html
+    from skimage.feature import hog
+    # Find contours in the image
+    ctrs = cv2.findContours(score_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    ctrs = ctrs[0] # findContours return contours and hierarchy, the [0] is contours
+
+    # Get rectangles contains each contour
+    rects = [cv2.boundingRect(ctr) for ctr in ctrs]
+
+    # For each rectangular region, calculate HOG features and predict
+    for rect in rects:
+        # Draw the rectangles
+        cv2.rectangle(score_image, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3) 
+        # Make the rectangular region around the digit
+        leng = int(rect[3] * 1.6)
+        pt1 = int(rect[1] + rect[3] // 2 - leng // 2)
+        pt2 = int(rect[0] + rect[2] // 2 - leng // 2)
+        roi = score_image[pt1:pt1+leng, pt2:pt2+leng]
+        # Resize the image
+        roi = cv2.resize(roi, (28, 28), interpolation=cv2.INTER_AREA)
+        roi = cv2.dilate(roi, (3, 3))
+        # Calculate the HOG features
+        roi_hog_fd = hog(roi, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualize=False, block_norm='L2-Hys')
+
+    cv2.imshow("Resulting Image with Rectangular ROIs", score_image)
+    cv2.waitKey(0)
+
+    return rects
 
 """
 With the full score image, split it into single digit, classify, rebuild the number,

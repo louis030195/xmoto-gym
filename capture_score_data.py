@@ -6,6 +6,7 @@ import time
 import mss
 import numpy as np
 
+from score_classification import extract_digits
 
 def capture_score_data(different_level=50, same_score=10):
     """
@@ -24,10 +25,10 @@ def capture_score_data(different_level=50, same_score=10):
 
 def color_detection():
 
-    env = gym.make("Xmoto-v0")
-    env.render()
+    #env = gym.make("Xmoto-v0")
+    #env.render()
 
-    time.sleep(2)
+    #time.sleep(2)
 
     (resized_screen, original_screen) = capture_screen((85, 195 , 30, 30))
 
@@ -36,8 +37,8 @@ def color_detection():
 
     # Converts images from BGR to HSV 
     hsv = cv2.cvtColor(original_screen, cv2.COLOR_BGR2HSV) 
-    lower_red = np.array([255,50,50]) 
-    upper_red = np.array([255,255,255]) 
+    lower_red = np.array([20,100,100]) 
+    upper_red = np.array([30,255,255]) 
 
     # Here we are defining range of bluecolor in HSV 
     # This creates a mask of blue coloured  
@@ -48,20 +49,24 @@ def color_detection():
     # that only the blue coloured objects are highlighted  
     # and stored in res 
     res = cv2.bitwise_and(original_screen, original_screen, mask= mask) 
-    cv2.imshow('frame',original_screen) 
-    cv2.imshow('mask',mask) 
-    cv2.imshow('res',res) 
+    #cv2.imshow('frame',original_screen) 
+    #cv2.imshow('mask',mask) 
+    #cv2.imshow('res',res) 
 
     # This displays the frame, mask  
     # and res which we created in 3 separate windows. 
-    k = None
-    while k != 27:
-        k = cv2.waitKey(5) & 0xFF
+    #k = None
+    #while k != 27:
+    #    k = cv2.waitKey(5) & 0xFF
     
     # Destroys all of the HighGUI windows. 
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
+
+    cv2.imwrite('score_data/7.png', mask)
 
 
 if __name__ == "__main__":
     #capture_score_data()
-    color_detection()
+    img = cv2.imread('score_data/score0_2.png',0)
+    print(img.shape)#img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    print(len(extract_digits(img)))
