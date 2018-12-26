@@ -63,9 +63,9 @@ batch_size = 64
 
 with tf.variable_scope("train"):
     X_state = tf.placeholder(tf.float32,
-    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 4])
+    shape=[None, 200, 150, 4])
     X_next_state = tf.placeholder(tf.float32,
-    shape=[None, int(env.SCREEN_WIDTH / 4), int(env.SCREEN_HEIGHT / 4), 4])
+    shape=[None, 200, 150, 4])
     X_action = tf.placeholder(tf.int32, shape=[None])
     X_done = tf.placeholder(tf.float32, shape=[None])
     X_rewards = tf.placeholder(tf.float32, shape=[None])
@@ -105,7 +105,7 @@ def sample_memories(batch_size):
     return cols
 
 # And on to the epsilon-greedy policy with decaying epsilon
-eps_min = 0.01
+eps_min = 0.10
 eps_max = 1.0 if not args.test else eps_min
 
 def epsilon_greedy(q_values, step):
@@ -222,6 +222,5 @@ with tf.Session() as sess:
             np.save(os.path.join(args.jobid, "{}.npy".format(args.jobid)), np.array((steps, returns)))
 
         # Next level every x steps
-        #if step % args.nextlevel == 0:
-        #    env.render()
-        #    env.next_level()
+        if step % args.nextlevel == 0:
+            env.next_level()

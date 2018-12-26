@@ -20,13 +20,13 @@ import signal
 import os
 import time
 import cv2
+from score_recognition import recognize_score
 
 
 
 class XmotoEnv(gym.Env):
 
   ACTION = ["w", "a", "s", "d", " ", "NA"]
-  SCREEN_HEIGHT, SCREEN_WIDTH  = 720, 480
   TOTAL_WINS = 0
   LEVELS = open('gym_xmoto/envs/levels.csv', 'r').readlines()
 
@@ -44,7 +44,7 @@ class XmotoEnv(gym.Env):
 
 
   def _get_state(self):
-      return capture_screen((80, 90, self.SCREEN_HEIGHT, self.SCREEN_WIDTH))
+      return capture_screen()
 
 
   def _action_tostring(self, action):
@@ -53,6 +53,7 @@ class XmotoEnv(gym.Env):
   def __init__(self):
 
     pyautogui.FAILSAFE = False
+    self.previous_score = 0
     self.levels = open('gym_xmoto/envs/levels.csv', 'r').readlines()
     self.viewer = False
     self.state = None
@@ -62,7 +63,7 @@ class XmotoEnv(gym.Env):
     self.action_space = spaces.Discrete(len(self.ACTION))
     self.observation_space = spaces.Box(low=0,
                high=255,
-               shape=(int(self.SCREEN_WIDTH / 4), int(self.SCREEN_HEIGHT / 4), 4),
+               shape=(150, 200, 4),
                dtype=np.uint8)
 
   def seed(self, seed=None):
@@ -103,7 +104,7 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
 
-    reward = -0.001 # speed up ?
+    reward = -0.1 # speed up ?
     # Frameskip stuff
     if isinstance(self.frameskip, int):
       num_steps = self.frameskip
@@ -124,19 +125,32 @@ class XmotoEnv(gym.Env):
 
     win = self.template_matching('win', tmpState)
 
+    score = recognize_score(tmpState[1][0:0+30,100:100+30])
+
+    print("score ", score, "previous ", self.previous_score)
+
     episode_over = dead | win
+
+    if score != '':
+      if int(score) < self.previous_score:
+        reward += 100
+      self.previous_score = int(score)
+      
 
     if dead:
         reward += -1
+        self.previous_score = 0
     if win:
-        reward += 1
+        reward += 100
         self.TOTAL_WINS += 1
+        self.previous_score = 0
         print("Total wins " + str(self.TOTAL_WINS))
 
         """
         if self.TOTAL_WINS % 100 == 0: # Next level every 100 wins
             self.next_level()
-        """
+            """
+        
 
 
     return tmpState[0], reward, episode_over, {dead}
@@ -164,6 +178,6 @@ class XmotoEnv(gym.Env):
   def template_matching(self, img_name, state):
     template = cv2.imread('screenshots/' + img_name + '.png', 0)
     w, h = template.shape[::-1]
-    res = cv2.matchTemplate(cv2.cvtColor(state[1], cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(cv2.cvtColor(np.array(state[1]), cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
     return len(np.where( res >= threshold)[0]) > 0
