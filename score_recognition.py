@@ -3,13 +3,14 @@ from image_preprocessor import preprocess_image
 import os
 import cv2
 import numpy as np
-
+"""
 digits = list()
 for digit_file_name in os.listdir('digits'):
 
     image = cv2.imread('digits/' + digit_file_name, cv2.IMREAD_COLOR)
     digit_image = preprocess_image(image)
     digits.append((digit_file_name[:-4], digit_image[0]))
+    """
 
 def recognize_score_with_filename(image_filename):
     try:

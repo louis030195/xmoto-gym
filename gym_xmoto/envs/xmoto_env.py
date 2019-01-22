@@ -127,7 +127,7 @@ class XmotoEnv(gym.Env):
 
     score = recognize_score(tmpState[1][0:0+30,100:100+30])
 
-    print("score ", score, "previous ", self.previous_score)
+    # print("score ", score, "previous ", self.previous_score)
 
     episode_over = dead | win
 

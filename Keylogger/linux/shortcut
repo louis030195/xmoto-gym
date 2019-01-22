@@ -1,2 +1,0 @@
-#!/bin/bash
-pylogger_file="../../pretrain.txt" pylogger_clean=1 pylogger_cancel="!" python keylogger.py

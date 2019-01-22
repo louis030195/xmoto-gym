@@ -93,22 +93,24 @@ def preprocess_image(image):
 
     # Now we can loop through each of the four contours and extract the letter
     # inside of each one
-    for contour in contours:
-        # Get the rectangle that contains the contour
-        (x, y, w, h) = cv2.boundingRect(contour)
+    try:
+        for contour in contours:
+            # Get the rectangle that contains the contour
+            (x, y, w, h) = cv2.boundingRect(contour)
 
-        # Compare the width and height of the contour to detect letters that
-        # are conjoined into one chunk
-        if w / h > 1.25:
-            # This contour is too wide to be a single letter!
-            # Split it in half into two letter regions!
-            half_width = int(w / 2)
-            letter_image_regions.append((x, y, half_width, h))
-            letter_image_regions.append((x + half_width, y, half_width, h))
-        else:
-            # This is a normal letter by itself
-            letter_image_regions.append((x, y, w, h))
-
+            # Compare the width and height of the contour to detect letters that
+            # are conjoined into one chunk
+            if w / h > 1.25:
+                # This contour is too wide to be a single letter!
+                # Split it in half into two letter regions!
+                half_width = int(w / 2)
+                letter_image_regions.append((x, y, half_width, h))
+                letter_image_regions.append((x + half_width, y, half_width, h))
+            else:
+                # This is a normal letter by itself
+                letter_image_regions.append((x, y, w, h))
+    except:
+        pass
     # Sort the detected letter images based on the x coordinate to make sure
     # we are processing them from left-to-right so we match the right image
     # with the right letter

@@ -24,27 +24,24 @@ OpenAi Gym with Xmoto !
   git clone https://github.com/louis030195/xmoto-gym.git
   cd xmoto-gym
   pip install -e .
-  pip install -e batch-ppo-master
   sudo apt-get install faketime
   sudo apt-get install xmoto
   ```
 
   # Usage
 
-  With DQN
-
   ```
-  python dqn.py
-  ```
-
-  With PPO
-
-  ```
-  python3 -m batch-ppo-master.agents.scripts.train --config=xmoto --noenv_processes
+  import gym
+  import gym_xmoto
+  env = gym.make('Xmoto-v0')
+  env.render()
+  for _ in range(1000):
+    env.step(env.action_space.sample()) # take a random action
   ```
 
 
   ## Docker
+  (Currently doesn't work because pyautogui doesn't work in Docker)
   ```
 	docker build .
 	docker run -p 5900:5900 <image hash>
@@ -60,9 +57,8 @@ OpenAi Gym with Xmoto !
   ...
 
   ## Roadmap
-
+  - [ ] Better score detection performance
+  - [ ] Synchronisation algorithm - faketime
   - [ ] Distributed training
-  - [ ] Multiple algorithms
-  - [ ] Reward on hit apple (decrease score)
-  - [ ] Try others algorithms
+  - [x] Reward on hit apple (decrease score)
 
