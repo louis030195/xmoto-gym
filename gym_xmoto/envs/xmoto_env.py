@@ -29,7 +29,6 @@ class XmotoEnv(gym.Env):
 
   ACTION = ["w", "a", "s", "d", " ", "NA"]
   TOTAL_WINS = 0
-  LEVELS = open('gym_xmoto/envs/levels.csv', 'r').readlines()
 
   # DRIVE -------------------------
   """
