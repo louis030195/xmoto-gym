@@ -14,7 +14,7 @@ OpenAi Gym with Xmoto !
  - NA = no action
 
   # Observations
-  - Screen pixels (720,480,3) resized to (180,120,3)
+  - Screen pixels
 
 
 
@@ -37,6 +37,11 @@ OpenAi Gym with Xmoto !
   env.render()
   for _ in range(1000):
     env.step(env.action_space.sample()) # take a random action
+  ```
+
+  Don't forget the path:
+  ```
+  python example.py YOUR_PATH/xmoto-gym
   ```
 
 

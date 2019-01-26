@@ -54,7 +54,6 @@ def alpha_composite_with_color(image, color=(255, 255, 255)):
 
 
 def preprocess_image(image):
-
     image = image[:,:,:3]
 
 
@@ -93,7 +92,7 @@ def preprocess_image(image):
 
     # Now we can loop through each of the four contours and extract the letter
     # inside of each one
-    try:
+    try: # https://github.com/louis030195/xmoto-gym/issues/13
         for contour in contours:
             # Get the rectangle that contains the contour
             (x, y, w, h) = cv2.boundingRect(contour)

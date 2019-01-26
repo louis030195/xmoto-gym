@@ -8,6 +8,7 @@ import math
 import pkg_resources
 import random
 import pyautogui
+import sys
 
 from gym import spaces
 import gym
@@ -54,7 +55,7 @@ class XmotoEnv(gym.Env):
 
     pyautogui.FAILSAFE = False
     self.previous_score = 0
-    self.levels = open('gym_xmoto/envs/levels.csv', 'r').readlines()
+    self.levels = open(sys.argv[1] + '/gym_xmoto/envs/levels.csv', 'r').readlines()
     self.viewer = False
     self.state = None
     self.frameskip = (1,8)
