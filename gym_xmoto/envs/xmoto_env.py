@@ -176,7 +176,7 @@ class XmotoEnv(gym.Env):
     pyautogui.click(x=200, y=200)
 
   def template_matching(self, img_name, state):
-    template = cv2.imread('screenshots/' + img_name + '.png', 0)
+    template = cv2.imread(sys.argv[1] + 'screenshots/' + img_name + '.png', 0)
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(cv2.cvtColor(np.array(state[1]), cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7

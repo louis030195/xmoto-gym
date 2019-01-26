@@ -7,7 +7,7 @@ import numpy as np
 digits = list()
 for digit_file_name in os.listdir('digits'):
 
-    image = cv2.imread('digits/' + digit_file_name, cv2.IMREAD_COLOR)
+    image = cv2.imread(sys.argv[1] + 'digits/' + digit_file_name, cv2.IMREAD_COLOR)
     digit_image = preprocess_image(image)
     digits.append((digit_file_name[:-4], digit_image[0]))
     """
