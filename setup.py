@@ -15,8 +15,10 @@ with open('requirements.txt') as f:
 setup(name='gym_xmoto',
       version='0.0.1',
       description='OpenAi\'s gym environment for Xmoto game - reinforcement learning research',
+      long_description=README,
       url='https://github.com/louis030195/xmoto-gym',
       author='Louis Beaumont',
       author_email='louis.beaumont@gmail.com',
       install_requires=requirements,
+      include_package_data=True,
       )
