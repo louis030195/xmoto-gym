@@ -6,7 +6,7 @@ import time
 import mss
 import numpy as np
 import os
-
+import pathlib
 from score_recognition import recognize_score_with_filename
 
 
@@ -14,6 +14,7 @@ def capture_score_data(different_level=50000, same_score=4):
     """
     This method is used to capture data about different score images (top left corner)
     """
+    HERE = pathlib.Path(__file__).parent
     env = gym.make("Xmoto-v0")
     env.render()
     
@@ -21,20 +22,21 @@ def capture_score_data(different_level=50000, same_score=4):
         for j in range(0, same_score): # Capture multiple images of the same score because it's often moving
             (resized_screen, original_screen) = capture_screen()
             img = original_screen[0:0+30,100:100+30]
-            cv2.imwrite(sys.argv[1] + 'score_data/score' + str(i) + '_' + str(j) + '.png', img)
+            cv2.imwrite(os.path.join(HERE / 'score_data/score', str(i) + '_' + str(j) + '.png'), img)
             time.sleep(1)
         env.next_level()
 
 
 if __name__ == "__main__":
-    score = recognize_score_with_filename(sys.argv[1] + 'score_data/score2_7.png')
+    HERE = pathlib.Path(__file__).parent
+    score = recognize_score_with_filename(HERE / 'score_data/score2_7.png')
     print(score)
 
-    score = recognize_score_with_filename(sys.argv[1] + 'score_data/score4_0.png')
+    score = recognize_score_with_filename(HERE / 'score_data/score4_0.png')
     print(score)
 
     for score_file_name in sorted(os.listdir('score_data')):
-        score = recognize_score_with_filename(sys.argv[1] + 'score_data/' + score_file_name)
+        score = recognize_score_with_filename(os.path.join(HERE / 'score_data/', score_file_name))
         print(score_file_name + " " + score)
 
     #capture_score_data()

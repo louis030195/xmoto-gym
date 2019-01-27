@@ -1,6 +1,5 @@
 numpy
 pandas
-tensorflow
 opencv-python
 pyautogui
 gym

@@ -30,6 +30,7 @@ OpenAi Gym with Xmoto !
 
   # Usage
 
+  Example
   ```
   import gym
   import gym_xmoto
@@ -39,9 +40,9 @@ OpenAi Gym with Xmoto !
     env.step(env.action_space.sample()) # take a random action
   ```
 
-  Don't forget the path:
+  You can try
   ```
-  python example.py YOUR_PATH/xmoto-gym
+  python example.py
   ```
 
 

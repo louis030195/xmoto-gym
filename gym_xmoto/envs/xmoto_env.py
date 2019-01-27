@@ -1,26 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pathlib
 
-# core modules
-import logging.config
-import math
-import pkg_resources
-import random
-import pyautogui
+# Core
 import sys
 
-from gym import spaces
-import gym
-from gym.utils import seeding
-from gym_xmoto.envs.utils import capture_screen
+# Use keys
+import pyautogui
 
+# Gym dependencies
+import gym
+from gym import spaces
+from gym.utils import seeding
+
+# Vectors
 import numpy as np
+
+# Processes
 import subprocess
 import signal
+
+# Files ...
 import os
+
+# Time
 import time
+
+# Image processing
 import cv2
+
+# Custom utils
+from gym_xmoto.envs.utils import capture_screen
 from score_recognition import recognize_score
 
 
@@ -30,7 +41,6 @@ class XmotoEnv(gym.Env):
   ACTION = ["w", "a", "s", "d", " ", "NA"]
   TOTAL_WINS = 0
 
-  # DRIVE -------------------------
   """
   Start is used to define if we should keep the key down or not
   """
@@ -39,8 +49,6 @@ class XmotoEnv(gym.Env):
         pyautogui.keyDown(str(key))
       else:
         pyautogui.keyUp(str(key))
-
-  #  -------------------------
 
 
   def _get_state(self):
@@ -52,9 +60,12 @@ class XmotoEnv(gym.Env):
 
   def __init__(self):
 
+    # The directory containing this file
+    HERE = pathlib.Path(__file__).parent
+
     pyautogui.FAILSAFE = False
     self.previous_score = 0
-    self.levels = open(sys.argv[1] + '/gym_xmoto/envs/levels.csv', 'r').readlines()
+    self.levels = open(HERE / 'levels.csv', 'r').readlines()
     self.viewer = False
     self.state = None
     self.frameskip = (1,8)
@@ -176,7 +187,8 @@ class XmotoEnv(gym.Env):
     pyautogui.click(x=200, y=200)
 
   def template_matching(self, img_name, state):
-    template = cv2.imread(sys.argv[1] + 'screenshots/' + img_name + '.png', 0)
+    HERE = pathlib.Path(__file__).parent
+    template = cv2.imread(os.path.join(HERE / '../../screenshots/', img_name + '.png'), 0)
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(cv2.cvtColor(np.array(state[1]), cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
