@@ -1,1 +1,3 @@
 include gym_xmoto/envs/levels.csv
+include *.py
+recursive-include gym_xmoto *.py

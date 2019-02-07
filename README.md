@@ -1,5 +1,7 @@
 # Xmoto AI
 
+![](https://img.shields.io/pypi/v/gym_xmoto.svg?style=flat)
+
 OpenAi Gym with Xmoto !
 
 [![xmoto-gym](https://img.youtube.com/vi/GL6iTVeh19I/0.jpg)](https://www.youtube.com/watch?v=GL6iTVeh19I)
@@ -21,9 +23,7 @@ OpenAi Gym with Xmoto !
 # Installation
 
 ```
-git clone https://github.com/louis030195/xmoto-gym.git
-cd xmoto-gym
-pip install -e .
+pip install gym_xmoto
 sudo apt-get install faketime
 sudo apt-get install xmoto
 ```
