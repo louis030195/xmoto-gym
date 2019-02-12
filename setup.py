@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gym_xmoto',
-      version='0.0.9',
+      version='0.1.1',
       description='OpenAi\'s gym environment for Xmoto game - reinforcement learning research',
       url='https://github.com/louis030195/xmoto-gym',
       author='Louis Beaumont',

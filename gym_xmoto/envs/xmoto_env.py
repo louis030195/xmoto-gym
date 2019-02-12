@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pathlib
-
 # Core
 import sys
+
+# Random
+import random
 
 # Use keys
 import pyautogui
@@ -23,6 +24,7 @@ import signal
 
 # Files ...
 import os
+import pathlib
 
 # Time
 import time
@@ -115,12 +117,12 @@ class XmotoEnv(gym.Env):
              use this for learning.
     """
 
-    reward = -0.1 # speed up ?
+    # Speed up
+    reward = -0.1 
     # Frameskip stuff
     if isinstance(self.frameskip, int):
       num_steps = self.frameskip
     else:
-      # Shouldn't be random but determined by the neural network
       num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
     for _ in range(num_steps):
       self._take_action(self.ACTION[action], True)
@@ -180,6 +182,9 @@ class XmotoEnv(gym.Env):
     os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
 
   def next_level(self):
+    """
+    Start random level
+    """
     os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
     self.process = subprocess.Popen(["faketime", "-f", "+0d x100", "xmoto", "-l", self.levels[random.randint(0, len(self.levels)-1)][0:-1]],
     preexec_fn=os.setsid)
@@ -187,8 +192,7 @@ class XmotoEnv(gym.Env):
     pyautogui.click(x=200, y=200)
 
   def template_matching(self, img_name, state):
-    HERE = pathlib.Path(__file__).parent
-    template = cv2.imread(os.path.join(HERE / '../../screenshots/', img_name + '.png'), 0)
+    template = cv2.imread(os.path.join(os.path.dirname(__file__), '../../screenshots/', img_name + '.png'), 0)
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(cv2.cvtColor(np.array(state[1]), cv2.COLOR_BGR2GRAY), template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
