@@ -32,8 +32,8 @@ import cv2
 
 # Custom utils
 from gym_xmoto.envs.utils import capture_screen
-from score_recognition import recognize_score
-
+# from score_recognition import recognize_score
+from gym_xmoto.envs.score_recognition import recognize_score
 
 
 class XmotoEnv(gym.Env):

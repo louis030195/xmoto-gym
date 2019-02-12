@@ -1,5 +1,5 @@
 
-from image_preprocessor import preprocess_image
+from gym_xmoto.envs.image_preprocessor import preprocess_image
 import os
 import cv2
 import numpy as np
