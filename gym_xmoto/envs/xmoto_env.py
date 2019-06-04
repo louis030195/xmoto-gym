@@ -159,17 +159,23 @@ class XmotoEnv(gym.Env):
     self._take_action("enter")
     return self._get_state()[0]
 
-  def render(self, accelerated=True, ugly_mode=True, level="tut1"):
+  def render(self, accelerated=True, ugly_mode=True, level="tut1", max_fps=True, hide_infos=False):
     params = ["faketime", "-f", "+0d x100", "/usr/games/xmoto", "-l", level]
     if not accelerated: # Don't use faketime
       params = params[3:]
+    if ugly_mode:
+      params.append("--ugly")
+    if max_fps:
+      params.append("-td")
+    if hide_infos:
+      params.append("--hidePlayingInformation")
+    
     self.process = subprocess.Popen(params, preexec_fn=os.setsid)
     time.sleep(1)
     assert self.process != None
     x, y, w, h = get_window_infos("0.5.11")
     mouse.move(x=x + w // 2, y=y + h // 2) # Click on the middle on the window to get back focus ...
     mouse.click()
-    if ugly_mode: self._take_action("F9")
 
   def close(self):
     os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)

@@ -33,6 +33,7 @@ Example
 ```
 python example.py
 ```
+ For more details check [this](https://github.com/louis030195/xmoto_learning)
 
 
 ## Docker
