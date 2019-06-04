@@ -29,15 +29,10 @@ def capture_score_data(different_level=50000, same_score=4):
 
 if __name__ == "__main__":
     HERE = pathlib.Path(__file__).parent
-    score = recognize_score_with_filename(HERE / 'score_data/score2_7.png')
-    print(score)
-
-    score = recognize_score_with_filename(HERE / 'score_data/score4_0.png')
-    print(score)
 
     for score_file_name in sorted(os.listdir('score_data')):
         score = recognize_score_with_filename(os.path.join(HERE / 'score_data/', score_file_name))
-        print(score_file_name + " " + score)
+        print(score_file_name + " score: " + score)
 
     #capture_score_data()
     

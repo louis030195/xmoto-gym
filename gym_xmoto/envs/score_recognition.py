@@ -27,3 +27,9 @@ def recognize_score(image):
         #cv2.imshow("", score_digit)
         #cv2.waitKey(3000)
     return score
+
+def recognize_score_ml(image):
+    pass
+
+def train_score():
+    pass

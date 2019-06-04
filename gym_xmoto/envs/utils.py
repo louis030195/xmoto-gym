@@ -1,20 +1,13 @@
 import numpy as np
 import cv2
-import pyautogui
+#import pyautogui
 import time
 import mss
 import mss.tools
 import subprocess
 
-def capture_screen(debug=False):
-    """
-    Capture screen
-    Returns
-    -------
-    resized screen, original size screen
-
-    """
-    output = subprocess.check_output(["xwininfo", "-name", "0.5.11"], universal_newlines=True)
+def get_window_infos(name):
+    output = subprocess.check_output(["xwininfo", "-name", name], universal_newlines=True)
 
     properties = {}
     for line in output.split("\n"):
@@ -26,6 +19,18 @@ def capture_screen(debug=False):
     y = int(properties['Absolute upper-left Y'])
     w = int(properties['Width'])
     h = int(properties['Height'])
+
+    return x, y, w, h
+
+def capture_screen(debug=False):
+    """
+    Capture screen
+    Returns
+    -------
+    resized screen, original size screen
+
+    """
+    x, y, w, h = get_window_infos("0.5.11")
 
     with mss.mss() as sct:
         region = {'top': y,

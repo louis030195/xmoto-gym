@@ -16,8 +16,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata \
 
 RUN pip install -e xmoto-gym
 
-RUN pip install -e xmoto-gym/batch-ppo-master
-
 CMD bash xmoto-gym/run.sh
 
 EXPOSE 5900

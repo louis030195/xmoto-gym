@@ -4,8 +4,6 @@
 
 OpenAi Gym with Xmoto !
 
-[![xmoto-gym](https://img.youtube.com/vi/GL6iTVeh19I/0.jpg)](https://www.youtube.com/watch?v=GL6iTVeh19I)
-
 
 # Actions
  - W = ADVANCE
@@ -16,7 +14,7 @@ OpenAi Gym with Xmoto !
  - NA = no action
 
   # Observations
-  - Screen pixels
+  - Screen pixels (200, 150, 3)
 
 
 
@@ -38,7 +36,7 @@ python example.py
 
 
 ## Docker
-(Currently doesn't work because pyautogui doesn't work in Docker)
+(Currently doesn't work Seg fault at example in run)
 ```
 docker build .
 docker run -p 5900:5900 <image hash>
@@ -54,6 +52,7 @@ vncviewer localhost:5901
 ...
 
 ## Roadmap
+- [ ] More observations from Xmoto API
 - [ ] Better score detection performance
 - [ ] Synchronisation algorithm - faketime
 - [ ] Distributed training
