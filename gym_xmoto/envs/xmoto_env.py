@@ -3,6 +3,7 @@
 
 # Core
 import sys
+import threading
 
 # Random
 import random
@@ -38,6 +39,7 @@ from gym_xmoto.envs.utils import capture_screen
 from gym_xmoto.envs.utils import get_window_infos
 # from score_recognition import recognize_score
 from gym_xmoto.envs.score_recognition import recognize_score
+from gym_xmoto.envs.proxy import proxy
 
 
 class XmotoEnv(gym.Env):
@@ -56,7 +58,15 @@ class XmotoEnv(gym.Env):
   def _get_state(self):
     return capture_screen()
 
-  def __init__(self):
+  def __init__(self, proxy_src='127.0.0.1:34568', proxy_dst='127.0.0.1:34567'):
+    """
+    Parameters
+    ----------
+    proxy_src : str
+        Source IP and port, i.e.: 127.0.0.1:8000
+    proxy_dst : str
+        Destination IP and port, i.e.: 127.0.0.1:8888
+    """
     self.previous_score = 0
     self.levels = open(os.path.join(os.path.dirname(__file__), 'levels.csv'), 'r').readlines()
     self.state = None
@@ -69,6 +79,14 @@ class XmotoEnv(gym.Env):
                high=255,
                shape=(150, 200, 4),
                dtype=np.uint8)
+    self.info = {}
+
+    # Launch server
+    params = ["/usr/games/xmoto", "--server", "--serverPort", proxy_dst.split(':')[-1]]
+    self.server_process = subprocess.Popen(params, preexec_fn=os.setsid) # TODO: check if these stuff works
+
+    # Launch proxy
+    self.proxy = proxy(proxy_src, proxy_dst, self.info)
 
   def seed(self, seed=None):
     self.np_random, seed1 = seeding.np_random(seed)
@@ -153,7 +171,7 @@ class XmotoEnv(gym.Env):
         
 
 
-    return tmpState[0], reward, episode_over, {dead}
+    return tmpState[0], reward, episode_over, self.info
 
   def reset(self):
     self._take_action("enter")
@@ -178,7 +196,9 @@ class XmotoEnv(gym.Env):
     mouse.click()
 
   def close(self):
+    self.proxy.close()
     os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+    os.killpg(os.getpgid(self.server_process.pid), signal.SIGTERM)
 
   def next_level(self, accelerated=True):
     """

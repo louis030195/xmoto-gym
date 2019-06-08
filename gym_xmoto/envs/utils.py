@@ -52,3 +52,4 @@ def test_capture_screen():
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
             break
+
